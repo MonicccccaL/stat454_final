@@ -1,0 +1,22 @@
+name: "454-Bayesian Statistics"
+title: "Bayesian Statistics: Bayesian Spatial Modeling"
+description: |
+  Bayesian Statistics: Bayesian Spatial Modeling
+output_dir: "docs"
+navbar:
+  right:
+    - text: "Home"
+      href: contents.html
+    - text: "Intro"
+      href: about.html
+    - text: "Bayesian Model"
+      href: bayes.html
+    - text: "Spatial Model"
+      href: spatial.html
+    - text: "Bayesian Spatial"
+      href: bayes_spatial.html
+    - text: "Simulation!"
+      href: sim.html
+    - text: "Wrap-up"
+      href: wrapup.html
+output: distill::distill_article

@@ -1,0 +1,12 @@
+---
+title: "House pricing: simulation activity in R"
+description: |
+---
+
+# Computational Simulation {#sim}
+
+
+---
+
+# Conclusion
+
