@@ -11,6 +11,17 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # Introduction
 
+When studying statistics, we have the common goal of learning from data about the world around us. We use data to fit models, make predictions, and evaluate hypotheses. When working with the same data, they will typically produce similar conclusions. You will find that we often used frequentist philosophy in our intro statistics courses. Also, during the past few centuries, the frequentist philosophy dominated statistical research and practice. Although Bayesian philosophy started developing in the 1740s, it wasn’t until the 1950s (more than 200 years later) that it was possible actually to do Bayesian statistics. Frequentist analysis focuses solely on properties of observed data without assigning probabilities to parameters, while Bayesian analysis incorporates prior beliefs and observed data to quantify uncertainty through probability distributions. To incorporate Bayesian philosophy into a formal model of some variable of interest, $Y$, we need some basic theorems.
+
+One dominant theorem of doing this is the **Bayes’ Therom (or Bayes’ Rule)**, denoted by: $P(A|B)=\frac{P(B|A)P(A)}{P(B)}$.
+
+Based on Bayes’ Rule, we can mathematically specify each fundamental Bayesian model and use approaches to approximate out-of-reach Bayesian models. We explore and predict $Y$ based on a set of potential predictor variables and build Bayesian regression and classification models under the assumption of independence. However, this assumption is usually violated in the real world. Here is when **hierarchical models** come into play. Hierarchical models are widely used across disciplines to represent complex dependency relationships in data. 
+
+A Bayesian hierarchical model provides a middle ground for recognizing both individuality and shared information among groups. This Bayesian modeling tool is often used to represent spatial and spatiotemporal data. Approving appropriate priors can represent the uncertainty in model parameters and latent variables. 
+
+While there are no closed-form expressions for posterior distribution, Markov chain Monte Carlo (MCMC) methods have been traditionally used to solve this problem. Since MCMC uses the simulation method, it causes this method to be computationally intensive, especially for complex models or large datasets, requiring substantial time and computational resources. Since then, a new method, **the integrated nested Laplace approximation (INLA)**, has developed in the last few years as a fast alternative to other methods!!
+
 
 # Motivation of the project
 
+Forecasting future outcomes is a crucial objective across numerous fields, encompassing economics, healthcare, and various social sciences. The capacity of Bayesian hierarchical models to amalgamate prior knowledge with observed data while quantifying uncertainty and enabling flexible model specification is pivotal for their utility across diverse disciplines. Xiang and Cynthia both come from an economic background and have some knowledge of spatial modeling from the course *Correlated Data (F23)*. We teamed up and decided to investigate a novel, expedited Bayesian approach, integrated nested Laplace approximation (INLA), which integrates spatial data and modeling techniques and employs this Bayesian spatial model to address economic inquiries.

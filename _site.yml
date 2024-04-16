@@ -9,12 +9,10 @@ navbar:
       href: contents.html
     - text: "Intro"
       href: about.html
-    - text: "Bayesian Model"
-      href: bayes.html
     - text: "Spatial Model"
       href: spatial.html
-    - text: "Bayesian Spatial"
-      href: bayes_spatial.html
+    - text: "INLA"
+      href: bayes.html
     - text: "Simulation!"
       href: sim.html
     - text: "Wrap-up"
