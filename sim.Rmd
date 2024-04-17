@@ -5,6 +5,98 @@ description: |
 
 # Computational Simulation {#sim}
 
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error=TRUE)
+library(dplyr)
+library(lubridate)
+library(stringr)
+library(ggplot2)
+library(sf) #install.packages('sf')
+library(spdep) #install.packages('spdep')
+library(GGally)
+library(tidyr)
+library(INLA)
+library(mapview)
+library(Matrix)
+library(leafsync)
+library(spatialreg)
+```
+
+## Data
+
+```{r}
+load('SpatialData.RData')
+```
+
+## 
+
+```{r}
+# Load Boston tracts shapefile
+Queen <- poly2nb(mn_data, queen = TRUE)
+
+mn_centroids <- st_centroid(st_geometry(mn_data), of_largest_polygon = TRUE)
+dist_neigh <- dnearneigh(mn_centroids, d1 = 0, d2 = 1*5280)
+nb_Q_net <- nb2lines(nb = Queen, coords = mn_centroids, as_sf = TRUE)
+
+
+#Visualize network on the map (unfilled)
+mn_data %>% 
+  ggplot()+
+  geom_sf()+
+  geom_sf(data=nb_Q_net)+
+  theme_classic()
+
+#map <- st_read(system.file("shapes/boston_tracts.shp", package = "spData"), quiet = TRUE)
+
+# Map Boston house price
+map$vble <- log(map$MEDV)
+mapview(map, zcol = "vble")
+
+# Find relationship of crime rate and number of rooms with log(house price)
+ggpairs(data = map, columns = c("vble", "CRIM", "RM"))
+
+# Neighborhood
+nb <- poly2nb(map)
+g <- nb2mat(nb, style = "C")
+
+map$re_u <- 1:nrow(map)
+map$re_v <- 1:nrow(map)
+
+# Specify BYM model
+formula <- vble ~ CRIM + RM + f(re_u, model = "bym2", graph = g)
+
+res <- inla(formula, family = "gaussian", data = map,
+            control.predictor = list(compute = TRUE),
+            control.compute = list(return.marginals.predictor = TRUE))
+res$summary.fixed
+
+# Posterior mean and 95% CI
+map$PM <- res$summary.fitted.values[, "mean"]
+map$LL <- res$summary.fitted.values[, "0.025quant"]
+map$UL <- res$summary.fitted.values[, "0.975quant"]
+
+# common legend
+at <- seq(min(c(map$PM, map$LL, map$UL)),
+          max(c(map$PM, map$LL, map$UL)),
+          length.out = 8)
+
+# popup table
+popuptable <- leafpop::popupTable(dplyr::mutate_if(map,
+                                  is.numeric, round, digits = 2),
+zcol = c("TOWN", "vble", "CRIM", "RM", "PM", "LL", "UL"),
+row.numbers = FALSE, feature.id = FALSE)
+
+m1 <- mapview(map, zcol = "PM", map.types = "CartoDB.Positron",
+              at = at, popup = popuptable)
+m2 <- mapview(map, zcol = "LL", map.types = "CartoDB.Positron",
+              at = at, popup = popuptable)
+m3 <- mapview(map, zcol = "UL", map.types = "CartoDB.Positron",
+              at = at, popup = popuptable)
+
+m <- leafsync::sync(m1, m2, m3, ncol = 3)
+m
+```
+
 
 ---
 
