@@ -1,6 +1,231 @@
 ---
-title: "Bayesian hierarchical models"
+title: "Bayesian Inference and INLA"
 description: |
-
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
+# Bayesian Inference
+
+Bayesian inference seeks to derive predictive or posterior distributions
+for models, representing the probability of parameters given observed
+data, or for predicting new data. The posterior distribution is computed
+by multiplying the data likelihood with the prior distributions and
+normalizing them to integrate into one.
+
+In a Bayesian framework, we first specify a likelihood function
+$\pi(y|\theta)$, describing the probability of observing data
+$y = (y_1, \dots, y_n)$ given parameters $\theta$. We assign a prior
+distribution $\pi(\theta|\eta)$ to $\theta$, where $\eta$ represents
+hyperparameters governing the parameter distribution. These priors
+encode our knowledge about $\theta$ before observing $y$. If
+hyperparameters $\eta$ are unknown, a fully Bayesian approach involves
+specifying a hyperprior distribution for $\eta$, or employing empirical
+Bayes with estimated $\eta$. Assuming $\eta$ is known, inference about
+$\theta$ relies on Bayes' Theorem: $$
+\pi ( \theta | y ) = \frac{\pi( y | \theta )  \pi(\theta)}{ \int \pi ( y | \theta) \pi ( \theta ) d \theta}
+$$ The denominator represents the marginal likelihood of $y$, acting as
+a scaling constant, leading to the proportional posterior distribution:
+$$
+\pi ( \theta | y ) \propto \pi( y | \theta )  \pi(\theta)
+$$
+
+Bayesian methods integrate prior beliefs into the model, updating them
+with observed data and accommodating complex models. However, the
+integral in the denominator is often intractable, so methods like MCMC
+are employed to sample from conditionals and estimate the marginal
+distribution for each parameter of interest.
+
+# What is Markov Chain Monte Carlo (MCMC)?
+
+While there are no closed-form expressions for posterior distribution,
+Markov chain Monte Carlo (MCMC) methods have been traditionally used to
+solve this problem. MCMC is a simulation method, addressing cases where
+closed-form expressions for posterior distributions are unavailable.
+This is also the method we will generally learn in class. It simulates a
+Markov chain that converges to the desired posterior distribution by
+generating a sequence of parameter values $\theta^{(j)}$ for
+$j = 1, ..., n$. MCMC avoids explicit integration of the challenging or
+impossible marginal likelihood function by proposing new parameter
+values based on current ones, guided by an acceptance probability
+ensuring convergence to the stationary distribution.
+
+Once convergence is achieved, sampled parameter values estimate key
+characteristics of the posterior distribution. Diagnostics like trace
+plots monitor mixing and convergence, ensuring reliable inference. MCMC
+provides a robust framework for Bayesian inference, enabling efficient
+analysis of complex statistical problems. The MCMC method has made a
+great impact on statistical practice by making Bayesian inference
+possible for complex models and high-dimensional data. However, since it
+is a sampling simulation method that is extremely computationally
+demanding, it may be slow to converge and can take a long time to
+execute.
+
+# An Alternative -- INLA Method
+
+**Integrated nested Laplace approximation (INLA)** offers a
+computationally efficient alternative to MCMC for approximate Bayesian
+inference in latent Gaussian models (Håvard Rue, Martino, and Chopin
+2009). While MCMC relies on the convergence of a Markov chain to
+approximate the desired posterior distribution, INLA takes a different
+approach. It employs a Laplacian approximation to estimate the
+individual posterior marginals of model parameters. This method combines
+analytical approximations with numerical algorithms for sparse matrices,
+enabling the approximation of posterior distributions with closed-form
+expressions. This facilitates faster inference and avoids issues related
+to sample convergence in MCMC, allowing for the analysis of large
+datasets and exploration of alternative models.
+
+The INLA framework entails a systematic approach to understanding and
+modeling relationships within observed variables. It begins with a
+vector of observed variables, $y = (y_1, \ldots, y_n)$, typically
+following the exponential family distribution. Each observation, $y_i$,
+is associated with a mean value, $\mu_i$, linked to a linear predictor,
+$\eta_i$, through a suitable link function. This linkage facilitates the
+connection between observed means and the underlying linear structure,
+crucial for understanding data relationships. The linear predictor,
+$\eta_i$, encompasses various terms, including covariates (fixed
+effects) and different random effects, forming the basis of the linear
+structure. A vector $x$ represents all latent effects, including the
+linear predictor and covariate coefficients, capturing the underlying
+data structure.
+
+Additionally, the distribution of observed variables, $y$, may depend on
+a vector of hyperparameters, $\theta_1$, governing data variability.
+This comprehensive approach enables effective analysis and
+interpretation of observed data, revealing meaningful insights and
+relationships inherent in the data's structure. The distribution of the
+latent effects $x$ is assumed to be Gaussian Markov random field (GMRF).
+This GMRF will have a zero mean and precision matrix $Q(\theta_2)$, with
+$\theta_2$ a vector of hyperparameters. The vector of all
+hyperparameters in the model will be denoted by
+$\theta = (\theta_1, \theta_2)$.
+
+Moreover, given the vector of latent effects, $x$, and the
+hyperparameters, $\theta$, it is assumed that the observations are
+independent of each other. This implies that the **likelihood function**
+can be expressed as:
+
+$$
+\pi(y|x,\theta)=\prod_{i \in \mathcal {I}} \pi(y_i|\eta_i, \theta)
+$$
+
+where,
+
+-   $\eta_i$: the latent linear predictor (which is part of the vector
+    $x$ of latent effects). It serves as a representation of the
+    underlying linear structure or trend that influences the observed
+    data $y_i$.
+
+-   $\mathcal{I}$: contains the indices for all observed values of $y$.
+    In other words, the indices of the observations for which we have
+    actual data.
+
+The aim of the INLA methodology is to approximate the posterior
+marginals of model parameters and hyperparameters, which estimates the
+distribution of each parameter and hyperparameter separately within the
+overall posterior distribution, allowing us to understand the
+uncertainty associated with each parameter and hyperparameter
+independently. This is achieved by exploiting the computational
+properties of GMRF and the Laplace approximation for multidimensional
+integration.
+
+The joint posterior distribution of the effects and hyperparameters can
+be expressed as:
+
+$$
+\pi(x,\theta|y)\propto \pi(θ)\pi(x|\theta) \prod_{i \in \mathcal {I}} \pi(y_i|x_i, \theta)\\
+\propto \pi(\theta)|Q(\theta)|^{\frac{1}{2}} exp \{ −\frac{1}{2}x^\top Q(\theta)x + \sum_{i \in \mathcal{I}}log(\pi(y_i|x_i,\theta)) \}.
+$$
+
+where,
+
+-   $Q(\theta)$: the precision matrix of the latent effects. The
+    precision matrix is the inverse of the covariance matrix, which
+    intuitively, it quantifies the relationships and dependencies
+    between parameters and hyperparameters in the model. This allows us
+    to model complex interactions and correlations in the data.
+
+-   $x_i = \eta_i$ when $i \in \mathcal{I}$, since mentioned above
+    $\eta_i$ is part of vector $x$. This implies that for observations
+    in the set of observed values, the latent effects $x_i$​ are directly
+    equal to the corresponding latent linear predictors $\eta_i$.
+
+Now we can calculate the **marginal distributions** (MAIN GOAL!!) for
+the latent effects and hyperparameters. It can be done considering that
+
+$$
+\pi(x_i|y)= \int \pi(x_i|\theta,y)\pi(\theta|y)d\theta\\
+\pi(\theta_j | y ) = \int \pi ( \theta | y ) d\theta_ {−j} \\
+\text{where} \ \theta_{-j}=(\theta_1, \dots, \theta_{j−1}, \theta_{j+1}, \dots, \theta_m). 
+$$
+
+​This provides us a way to obtain the marginal distribution of the latent
+effect $x_i$ (model parameters) and a specific hyperparameter $\theta_j$​
+from the joint posterior distribution of all hyperparameters given the
+observed data $y$.
+
+This nested formulation, which reflects the layered approach of
+approximating the posterior distributions of latent effects and
+hyperparameters, is used to approximate $\pi(x_i|y)$ by combining
+analytical approximations to the full conditionals $\pi(x_i|\theta,y)$
+and $\pi(\theta|y)$ and numerical integration routines to integrate out
+$\theta$. Similarly, $\pi(\theta_j|y)$ is approximated by approximating
+$\pi(\theta|y)$ and integrating out $\theta_{-j}$. To construct nested
+approximations by INLA, it can be written as
+
+$$
+\tilde \pi(x_i|y)= \int \tilde \pi(x_i|\theta,y) \tilde \pi(\theta|y)d\theta\\
+\tilde\pi(\theta_j | y ) = \int \tilde \pi ( \theta | y ) d\theta_ {−j}
+$$
+
+where $\tilde \pi( \cdot| \cdot)$ is an approximated posterior density.
+The approximation to the marginal density $\pi(x_i|y)$ is obtained in a
+nested fashion by first approximating $\pi(\theta|y)$ and
+$\pi(x_i|\theta,y)$, and then numerically integrating out $\theta$ as
+
+$$
+\pi(x_i|y)=\sum_k \tilde \pi(x_i|\theta_k,y)\times\tilde \pi(\theta_k|y)\times \Delta k,
+$$
+
+where
+
+-   $\Delta_k$: represents the integration weights associated with each
+    value of $\theta_k$​, which also denotes the area weight
+    corresponding to $\theta_k$.
+
+-   $\sum _k$: the summation of all possible values of $\theta$ with
+    each term weighted by the respective integration weight
+    $\Delta_{k}$.
+
+The posterior marginals for the $x_i$ conditioned on selected values of
+$\theta_k$​, denoted by $\pi(x_i|\theta_k,y)$, and the approximation
+$\tilde \pi (\theta_k|y)$ can be obtained using various approximation
+techniques such as Gaussian, Laplace, or simplified Laplace
+approximations. The Gaussian approximation, derived from
+$\tilde\pi_G(x|\theta,y)$, is the simplest and fastest solution.
+
+However, it may introduce errors in location and fail to capture
+skewness behavior in certain situations. The Laplace approximation,
+while preferable to the Gaussian one, is relatively more computationally
+expensive. Alternatively, the simplified Laplace approximation provides
+a middle-ground between computational cost and accuracy, which is also
+the default option in the R-INLA package.
+
+## The R-INLA Package
+
+The integrated nested Laplace approximation (INLA) approach is
+implemented in the R package **R-INLA** (Havard Rue, Lindgren, and
+Teixeira Krainski 2023). The INLA website
+([http://www.r-inla.org)](http://www.r-inla.org)) includes
+introductions, instructions for download, examples, and other resources
+(i.e. discussion group, news, etc.) about INLA and the R-INLA package
+(Wang, Ryan, and Faraway 2018; Krainski et al. 2019; Moraga 2019;
+Gómez-Rubio 2020).
+
+To fit a model using INLA in R, we typically define the linear predictor
+as a formula object. Then, we call the **`inla()`** function (MAIN
+function), passing the formula, the family distribution, the data, and
+any other necessary options. This function works in a similar way as the
+`glm()` functions that we mostly familiar with.

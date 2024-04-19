@@ -88,26 +88,26 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
   <!--radix_placeholder_meta_tags-->
-  <title>Bayesian Statistics: Bayesian Spatial Modeling: Bayesian hierarchical models</title>
+  <title>Bayesian Statistics: Bayesian Spatial Modeling: Bayesian Inference and INLA</title>
 
 
 
 
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
-  <meta property="og:title" content="Bayesian Statistics: Bayesian Spatial Modeling: Bayesian hierarchical models"/>
+  <meta property="og:title" content="Bayesian Statistics: Bayesian Spatial Modeling: Bayesian Inference and INLA"/>
   <meta property="og:type" content="article"/>
   <meta property="og:locale" content="en_US"/>
   <meta property="og:site_name" content="Bayesian Statistics: Bayesian Spatial Modeling"/>
 
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
-  <meta property="twitter:title" content="Bayesian Statistics: Bayesian Spatial Modeling: Bayesian hierarchical models"/>
+  <meta property="twitter:title" content="Bayesian Statistics: Bayesian Spatial Modeling: Bayesian Inference and INLA"/>
 
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description"]}},"value":[{"type":"character","attributes":{},"value":["Bayesian hierarchical models"]},{"type":"NULL"}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Bayesian Inference and INLA"]},{"type":"NULL"},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["markdown"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["wrap"]}},"value":[{"type":"integer","attributes":{},"value":[72]}]}]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -455,8 +455,8 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
 
   <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-  <link href="site_libs/font-awesome-6.2.1/css/all.min.css" rel="stylesheet"/>
-  <link href="site_libs/font-awesome-6.2.1/css/v4-shims.min.css" rel="stylesheet"/>
+  <link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet"/>
+  <link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet"/>
   <script src="site_libs/headroom-0.9.4/headroom.min.js"></script>
   <script src="site_libs/autocomplete-0.37.1/autocomplete.min.js"></script>
   <script src="site_libs/fuse-6.4.1/fuse.min.js"></script>
@@ -826,9 +826,21 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     display: none !important;
   }
 
+  hr.section-separator {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 0px;
+  }
+
+
+  d-byline {
+    border-top: none;
+  }
+
   d-article {
     padding-top: 2.5rem;
     padding-bottom: 30px;
+    border-top: none;
   }
 
   d-appendix {
@@ -923,6 +935,11 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   d-article div.sourceCode pre {
     padding-left: 18px;
     font-size: 14px;
+  }
+
+  /* tweak for Pandoc numbered line within distill */
+  d-article pre.numberSource code > span {
+      left: -2em;
   }
 
   d-article pre {
@@ -1684,6 +1701,12 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     // create d-title
     $('.d-title').changeElementType('d-title');
 
+    // separator
+    var separator = '<hr class="section-separator" style="clear: both"/>';
+    // prepend separator above appendix
+    $('.d-byline').before(separator);
+    $('.d-article').before(separator);
+
     // create d-byline
     var byline = $('<d-byline></d-byline>');
     $('.d-byline').replaceWith(byline);
@@ -1761,8 +1784,9 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     $('.distill-force-highlighting-css').parent().remove();
 
     // remove empty line numbers inserted by pandoc when using a
-    // custom syntax highlighting theme
-    $('code.sourceCode a:empty').remove();
+    // custom syntax highlighting theme, except when numbering line
+    // in code chunk
+    $('pre:not(.numberLines) code.sourceCode a:empty').remove();
 
     // load distill framework
     load_distill_framework();
@@ -1788,12 +1812,13 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       // add orcid ids
       $('.authors-affiliations').find('.author').each(function(i, el) {
         var orcid_id = front_matter.authors[i].orcidID;
+        var author_name = front_matter.authors[i].author
         if (orcid_id) {
           var a = $('<a></a>');
           a.attr('href', 'https://orcid.org/' + orcid_id);
           var img = $('<img></img>');
           img.addClass('orcid-id');
-          img.attr('alt', 'ORCID ID');
+          img.attr('alt', author_name ? 'ORCID ID for ' + author_name : 'ORCID ID');
           img.attr('src','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg==');
           a.append(img);
           $(this).append(a);
@@ -2071,7 +2096,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </script>
 
   <!--/radix_placeholder_distill-->
-  <script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
+  <script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
   <script src="site_libs/popper-2.6.0/popper.min.js"></script>
   <link href="site_libs/tippy-6.2.7/tippy.css" rel="stylesheet" />
   <link href="site_libs/tippy-6.2.7/tippy-light-border.css" rel="stylesheet" />
@@ -2091,7 +2116,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Bayesian hierarchical models","authors":[]}
+{"title":"Bayesian Inference and INLA","authors":[]}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2104,9 +2129,8 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <div class="nav-right">
 <a href="contents.html">Home</a>
 <a href="about.html">Intro</a>
-<a href="bayes.html">Bayesian Model</a>
 <a href="spatial.html">Spatial Model</a>
-<a href="bayes_spatial.html">Bayesian Spatial</a>
+<a href="bayes.html">INLA</a>
 <a href="sim.html">Simulation!</a>
 <a href="wrapup.html">Wrap-up</a>
 <a href="javascript:void(0);" class="nav-toggle">&#9776;</a>
@@ -2118,7 +2142,8 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--/radix_placeholder_site_before_body-->
 
 <div class="d-title">
-<h1>Bayesian hierarchical models</h1>
+<h1>Bayesian Inference and INLA</h1>
+
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
 
@@ -2126,6 +2151,199 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
 <div class="d-article">
+<h1 id="bayesian-inference">Bayesian Inference</h1>
+<p>Bayesian inference seeks to derive predictive or posterior distributions
+for models, representing the probability of parameters given observed
+data, or for predicting new data. The posterior distribution is computed
+by multiplying the data likelihood with the prior distributions and
+normalizing them to integrate into one.</p>
+<p>In a Bayesian framework, we first specify a likelihood function
+<span class="math inline">\(\pi(y|\theta)\)</span>, describing the probability of observing data
+<span class="math inline">\(y = (y_1, \dots, y_n)\)</span> given parameters <span class="math inline">\(\theta\)</span>. We assign a prior
+distribution <span class="math inline">\(\pi(\theta|\eta)\)</span> to <span class="math inline">\(\theta\)</span>, where <span class="math inline">\(\eta\)</span> represents
+hyperparameters governing the parameter distribution. These priors
+encode our knowledge about <span class="math inline">\(\theta\)</span> before observing <span class="math inline">\(y\)</span>. If
+hyperparameters <span class="math inline">\(\eta\)</span> are unknown, a fully Bayesian approach involves
+specifying a hyperprior distribution for <span class="math inline">\(\eta\)</span>, or employing empirical
+Bayes with estimated <span class="math inline">\(\eta\)</span>. Assuming <span class="math inline">\(\eta\)</span> is known, inference about
+<span class="math inline">\(\theta\)</span> relies on Bayes’ Theorem: <span class="math display">\[
+\pi ( \theta | y ) = \frac{\pi( y | \theta )  \pi(\theta)}{ \int \pi ( y | \theta) \pi ( \theta ) d \theta}
+\]</span> The denominator represents the marginal likelihood of <span class="math inline">\(y\)</span>, acting as
+a scaling constant, leading to the proportional posterior distribution:
+<span class="math display">\[
+\pi ( \theta | y ) \propto \pi( y | \theta )  \pi(\theta)
+\]</span></p>
+<p>Bayesian methods integrate prior beliefs into the model, updating them
+with observed data and accommodating complex models. However, the
+integral in the denominator is often intractable, so methods like MCMC
+are employed to sample from conditionals and estimate the marginal
+distribution for each parameter of interest.</p>
+<h1 id="what-is-markov-chain-monte-carlo-mcmc">What is Markov Chain Monte Carlo (MCMC)?</h1>
+<p>While there are no closed-form expressions for posterior distribution,
+Markov chain Monte Carlo (MCMC) methods have been traditionally used to
+solve this problem. MCMC is a simulation method, addressing cases where
+closed-form expressions for posterior distributions are unavailable.
+This is also the method we will generally learn in class. It simulates a
+Markov chain that converges to the desired posterior distribution by
+generating a sequence of parameter values <span class="math inline">\(\theta^{(j)}\)</span> for
+<span class="math inline">\(j = 1, ..., n\)</span>. MCMC avoids explicit integration of the challenging or
+impossible marginal likelihood function by proposing new parameter
+values based on current ones, guided by an acceptance probability
+ensuring convergence to the stationary distribution.</p>
+<p>Once convergence is achieved, sampled parameter values estimate key
+characteristics of the posterior distribution. Diagnostics like trace
+plots monitor mixing and convergence, ensuring reliable inference. MCMC
+provides a robust framework for Bayesian inference, enabling efficient
+analysis of complex statistical problems. The MCMC method has made a
+great impact on statistical practice by making Bayesian inference
+possible for complex models and high-dimensional data. However, since it
+is a sampling simulation method that is extremely computationally
+demanding, it may be slow to converge and can take a long time to
+execute.</p>
+<h1 id="an-alternative-inla-method">An Alternative – INLA Method</h1>
+<p><strong>Integrated nested Laplace approximation (INLA)</strong> offers a
+computationally efficient alternative to MCMC for approximate Bayesian
+inference in latent Gaussian models (Håvard Rue, Martino, and Chopin
+2009). While MCMC relies on the convergence of a Markov chain to
+approximate the desired posterior distribution, INLA takes a different
+approach. It employs a Laplacian approximation to estimate the
+individual posterior marginals of model parameters. This method combines
+analytical approximations with numerical algorithms for sparse matrices,
+enabling the approximation of posterior distributions with closed-form
+expressions. This facilitates faster inference and avoids issues related
+to sample convergence in MCMC, allowing for the analysis of large
+datasets and exploration of alternative models.</p>
+<p>The INLA framework entails a systematic approach to understanding and
+modeling relationships within observed variables. It begins with a
+vector of observed variables, <span class="math inline">\(y = (y_1, \ldots, y_n)\)</span>, typically
+following the exponential family distribution. Each observation, <span class="math inline">\(y_i\)</span>,
+is associated with a mean value, <span class="math inline">\(\mu_i\)</span>, linked to a linear predictor,
+<span class="math inline">\(\eta_i\)</span>, through a suitable link function. This linkage facilitates the
+connection between observed means and the underlying linear structure,
+crucial for understanding data relationships. The linear predictor,
+<span class="math inline">\(\eta_i\)</span>, encompasses various terms, including covariates (fixed
+effects) and different random effects, forming the basis of the linear
+structure. A vector <span class="math inline">\(x\)</span> represents all latent effects, including the
+linear predictor and covariate coefficients, capturing the underlying
+data structure.</p>
+<p>Additionally, the distribution of observed variables, <span class="math inline">\(y\)</span>, may depend on
+a vector of hyperparameters, <span class="math inline">\(\theta_1\)</span>, governing data variability.
+This comprehensive approach enables effective analysis and
+interpretation of observed data, revealing meaningful insights and
+relationships inherent in the data’s structure. The distribution of the
+latent effects <span class="math inline">\(x\)</span> is assumed to be Gaussian Markov random field (GMRF).
+This GMRF will have a zero mean and precision matrix <span class="math inline">\(Q(\theta_2)\)</span>, with
+<span class="math inline">\(\theta_2\)</span> a vector of hyperparameters. The vector of all
+hyperparameters in the model will be denoted by
+<span class="math inline">\(\theta = (\theta_1, \theta_2)\)</span>.</p>
+<p>Moreover, given the vector of latent effects, <span class="math inline">\(x\)</span>, and the
+hyperparameters, <span class="math inline">\(\theta\)</span>, it is assumed that the observations are
+independent of each other. This implies that the <strong>likelihood function</strong>
+can be expressed as:</p>
+<p><span class="math display">\[
+\pi(y|x,\theta)=\prod_{i \in \mathcal {I}} \pi(y_i|\eta_i, \theta)
+\]</span></p>
+<p>where,</p>
+<ul>
+<li><p><span class="math inline">\(\eta_i\)</span>: the latent linear predictor (which is part of the vector
+<span class="math inline">\(x\)</span> of latent effects). It serves as a representation of the
+underlying linear structure or trend that influences the observed
+data <span class="math inline">\(y_i\)</span>.</p></li>
+<li><p><span class="math inline">\(\mathcal{I}\)</span>: contains the indices for all observed values of <span class="math inline">\(y\)</span>.
+In other words, the indices of the observations for which we have
+actual data.</p></li>
+</ul>
+<p>The aim of the INLA methodology is to approximate the posterior
+marginals of model parameters and hyperparameters, which estimates the
+distribution of each parameter and hyperparameter separately within the
+overall posterior distribution, allowing us to understand the
+uncertainty associated with each parameter and hyperparameter
+independently. This is achieved by exploiting the computational
+properties of GMRF and the Laplace approximation for multidimensional
+integration.</p>
+<p>The joint posterior distribution of the effects and hyperparameters can
+be expressed as:</p>
+<p><span class="math display">\[
+\pi(x,\theta|y)\propto \pi(θ)\pi(x|\theta) \prod_{i \in \mathcal {I}} \pi(y_i|x_i, \theta)\\
+\propto \pi(\theta)|Q(\theta)|^{\frac{1}{2}} exp \{ −\frac{1}{2}x^\top Q(\theta)x + \sum_{i \in \mathcal{I}}log(\pi(y_i|x_i,\theta)) \}.
+\]</span></p>
+<p>where,</p>
+<ul>
+<li><p><span class="math inline">\(Q(\theta)\)</span>: the precision matrix of the latent effects. The
+precision matrix is the inverse of the covariance matrix, which
+intuitively, it quantifies the relationships and dependencies
+between parameters and hyperparameters in the model. This allows us
+to model complex interactions and correlations in the data.</p></li>
+<li><p><span class="math inline">\(x_i = \eta_i\)</span> when <span class="math inline">\(i \in \mathcal{I}\)</span>, since mentioned above
+<span class="math inline">\(\eta_i\)</span> is part of vector <span class="math inline">\(x\)</span>. This implies that for observations
+in the set of observed values, the latent effects <span class="math inline">\(x_i\)</span>​ are directly
+equal to the corresponding latent linear predictors <span class="math inline">\(\eta_i\)</span>.</p></li>
+</ul>
+<p>Now we can calculate the <strong>marginal distributions</strong> (MAIN GOAL!!) for
+the latent effects and hyperparameters. It can be done considering that</p>
+<p><span class="math display">\[
+\pi(x_i|y)= \int \pi(x_i|\theta,y)\pi(\theta|y)d\theta\\
+\pi(\theta_j | y ) = \int \pi ( \theta | y ) d\theta_ {−j} \\
+\text{where} \ \theta_{-j}=(\theta_1, \dots, \theta_{j−1}, \theta_{j+1}, \dots, \theta_m).
+\]</span></p>
+<p>​This provides us a way to obtain the marginal distribution of the latent
+effect <span class="math inline">\(x_i\)</span> (model parameters) and a specific hyperparameter <span class="math inline">\(\theta_j\)</span>​
+from the joint posterior distribution of all hyperparameters given the
+observed data <span class="math inline">\(y\)</span>.</p>
+<p>This nested formulation, which reflects the layered approach of
+approximating the posterior distributions of latent effects and
+hyperparameters, is used to approximate <span class="math inline">\(\pi(x_i|y)\)</span> by combining
+analytical approximations to the full conditionals <span class="math inline">\(\pi(x_i|\theta,y)\)</span>
+and <span class="math inline">\(\pi(\theta|y)\)</span> and numerical integration routines to integrate out
+<span class="math inline">\(\theta\)</span>. Similarly, <span class="math inline">\(\pi(\theta_j|y)\)</span> is approximated by approximating
+<span class="math inline">\(\pi(\theta|y)\)</span> and integrating out <span class="math inline">\(\theta_{-j}\)</span>. To construct nested
+approximations by INLA, it can be written as</p>
+<p><span class="math display">\[
+\tilde \pi(x_i|y)= \int \tilde \pi(x_i|\theta,y) \tilde \pi(\theta|y)d\theta\\
+\tilde\pi(\theta_j | y ) = \int \tilde \pi ( \theta | y ) d\theta_ {−j}
+\]</span></p>
+<p>where <span class="math inline">\(\tilde \pi( \cdot| \cdot)\)</span> is an approximated posterior density.
+The approximation to the marginal density <span class="math inline">\(\pi(x_i|y)\)</span> is obtained in a
+nested fashion by first approximating <span class="math inline">\(\pi(\theta|y)\)</span> and
+<span class="math inline">\(\pi(x_i|\theta,y)\)</span>, and then numerically integrating out <span class="math inline">\(\theta\)</span> as</p>
+<p><span class="math display">\[
+\pi(x_i|y)=\sum_k \tilde \pi(x_i|\theta_k,y)\times\tilde \pi(\theta_k|y)\times \Delta k,
+\]</span></p>
+<p>where</p>
+<ul>
+<li><p><span class="math inline">\(\Delta_k\)</span>: represents the integration weights associated with each
+value of <span class="math inline">\(\theta_k\)</span>​, which also denotes the area weight
+corresponding to <span class="math inline">\(\theta_k\)</span>.</p></li>
+<li><p><span class="math inline">\(\sum _k\)</span>: the summation of all possible values of <span class="math inline">\(\theta\)</span> with
+each term weighted by the respective integration weight
+<span class="math inline">\(\Delta_{k}\)</span>.</p></li>
+</ul>
+<p>The posterior marginals for the <span class="math inline">\(x_i\)</span> conditioned on selected values of
+<span class="math inline">\(\theta_k\)</span>​, denoted by <span class="math inline">\(\pi(x_i|\theta_k,y)\)</span>, and the approximation
+<span class="math inline">\(\tilde \pi (\theta_k|y)\)</span> can be obtained using various approximation
+techniques such as Gaussian, Laplace, or simplified Laplace
+approximations. The Gaussian approximation, derived from
+<span class="math inline">\(\tilde\pi_G(x|\theta,y)\)</span>, is the simplest and fastest solution.</p>
+<p>However, it may introduce errors in location and fail to capture
+skewness behavior in certain situations. The Laplace approximation,
+while preferable to the Gaussian one, is relatively more computationally
+expensive. Alternatively, the simplified Laplace approximation provides
+a middle-ground between computational cost and accuracy, which is also
+the default option in the R-INLA package.</p>
+<h2 id="the-r-inla-package">The R-INLA Package</h2>
+<p>The integrated nested Laplace approximation (INLA) approach is
+implemented in the R package <strong>R-INLA</strong> (Havard Rue, Lindgren, and
+Teixeira Krainski 2023). The INLA website
+(<a href="http://www.r-inla.org">http://www.r-inla.org)</a>) includes
+introductions, instructions for download, examples, and other resources
+(i.e. discussion group, news, etc.) about INLA and the R-INLA package
+(Wang, Ryan, and Faraway 2018; Krainski et al. 2019; Moraga 2019;
+Gómez-Rubio 2020).</p>
+<p>To fit a model using INLA in R, we typically define the linear predictor
+as a formula object. Then, we call the <strong><code>inla()</code></strong> function (MAIN
+function), passing the formula, the family distribution, the data, and
+any other necessary options. This function works in a similar way as the
+<code>glm()</code> functions that we mostly familiar with.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
@@ -2134,6 +2352,15 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <div class="d-appendix">
 </div>
 
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 
 <!--radix_placeholder_site_after_body-->
 <!--/radix_placeholder_site_after_body-->
