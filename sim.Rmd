@@ -30,66 +30,88 @@ The Hennepin and Ramsey housing prices are gathered aggregate summaries of the p
 
 ```{r}
 load('SpatialData.RData')
+ggplot(mn_data, aes(x=HouseValueE))+
+  geom_density()
 ```
 
-This dataset contains housing data of 464 Hennepin and Ramsey census tracts including median prices of housing in USD (`HouseValueE`), median household income in the past 12 months (in 2019 inflation) (`IncomeE`), and average  household size of occupied houses (`HouseholdSizeE`). We create the variable called `vble` with the logarithm of the median prices to put it in the same scale, and map the log price using **mapview** (Figure 1). The map suggests that the housing prices are greater in the southwest, and prices are related to those in neighboring areas.
+This dataset contains housing data of 464 Hennepin and Ramsey census tracts including median prices of housing in USD (`HouseValueE`), median household income in the past 12 months (in 2019 inflation) (`IncomeE`), and average household size of occupied houses (`HouseholdSizeE`). We create the variable called `vble` with the logarithm of the median prices to put it in the same scale, and map the log price using **mapview** (Figure 1). The map suggests that the housing prices are greater in the southwest, and prices are related to those in neighboring areas. Noted that the empty area is the University of Minnesota area, since there is no houses listed.
+
+*Figure 1 Logarithm of housing prices in Hennipin & Ramsey county, MN per census tract from the spData package*
 
 ```{r}
 mn_data$vble <- log(mn_data$HouseValueE)
 mapview(mn_data, zcol = "vble")
 ```
 
+We will model the logarithm of the median prices using as covariates the average Median household income in the past 12 months (IncomeE) and the average household size (HouseholdSizeE). Figure 2 shows the relationships between pairs of variables visualized using the ggpairs() function of the GGally package (Schloerke et al. 2021). We observe a negative relationship between the logarithm of housing price and crime, and a positive relationship between the logarithm of housing price and the average number of rooms.
 
-```{r}
-#
-Queen <- poly2nb(mn_data, queen = TRUE)
-
-mn_centroids <- st_centroid(st_geometry(mn_data), of_largest_polygon = TRUE)
-nb_Q_net <- nb2lines(nb = Queen, coords = mn_centroids, as_sf = TRUE)
-
-#Visualize network on the map (unfilled)
-mn_data %>% 
-  ggplot()+
-  geom_sf()+
-  geom_sf(data=nb_Q_net)+
-  theme_classic()
-```
+*Figure 2 Relationship betwen the outcome variable logarithm of housing price (vble), and the average Median household income in the past 12 months (IncomeE) and the average household size (HouseholdSizeE)*
 
 ```{r}
 # Find relationship of crime rate and number of rooms with log(house price)
 ggpairs(data = mn_data, columns = c("vble", "HouseholdSizeE", "IncomeE"))
+```
 
-nb <- poly2nb(mn_data)
+## Model
 
-mn_centroids <- st_centroid(st_geometry(mn_data), of_largest_polygon = TRUE)
-dist_neigh <- dnearneigh(mn_centroids, d1 = 0, d2 = 1*5280)
-g <- nb2lines(nb = nb, coords = mn_centroids, as_sf = TRUE)
+Let $Y_i$ be the logarithm of housing price of area $i$, $i = 1 , \dots, n$. We fit a BYM model that considers $Y_i$ as the response variable, and household income and household size as covariates:
+$$
+Y \sim N(\mu_i,\sigma^2), i = 1, \dots, n \\
+\mu_i=\beta_0+\beta_1 \times Income+\beta_2 \times HouseholdSize + u_i+v_i
+$$
+where, (Question? does this mean that each household has a seperate intercept)
+- $\beta_0$: the global intercept, which every household will have the same intercept.
+- $\beta_1$, $\beta_2$: represent respectively, the coefficients of the covariates household income and household size.
+- $\mu_i$: a spatially structured effect modeled with a CAR structure,$\mu_i| u_{-i} \sim N(\mu_{\delta_i}, \frac{\sigma^2_u}{n_{\delta_i}})$. 
+- $v_i$: an unstructured effect modeled as $v_i \sim N(\theta, \sigma^2_v)$.
 
-#Visualize network on the map (unfilled)
-mn_data %>% 
-  ggplot()+
-  geom_sf()+
-  geom_sf(data=g)+
-  theme_classic()
+## Neighborhood Matrix
 
-# # Neighborhood
-nb <- poly2nb(mn_data)
+We decided to use Queen neighborhood structure, which ...
+
+*Figure 3 Neighborhood Network Structure*
+
+In the model, the spatial random effect $u_i$ needs to be specified using a neighborhood structure. As we mentioned in the spatial model section, there are **3** commmon neighborhood structure: Queen, Rook, and Bishop. Here, we assume two areas are neighbors if they share a common edge or a common vertex. We create a neighborhood structure using functions of the **spdep** package (Bivand 2022). 
+
+First, we use the poly2nb() function to generate a spatial weights matrix (nb) based on the data (mn_data) and using queen contiguity to define neighborhood relationships between polygons. Each element of the list nb represents one area and contains the indices of its neighbors. For example, nb[[1]] contains indices of neighboring polygons in area 1.
+
+```{r}
+# Neighborhood
+nb <- poly2nb(mn_data, queen = TRUE)
+head(nb, 3)
+```
+
+Figure 3 shows a map with the neighbors obtained. This plot is obtained by first plotting the map of Ramsey and Hennipin, and then overlapping the queen neighborhood structure with the plot.nb() function passing the neighbor list and the coordinates of the map.
+
+```{r}
+plot(st_geometry(mn_data), border = "black")
+plot.nb(nb, st_geometry(mn_data), add = TRUE)
+```
+
+To construct the neighborhood matrix that can be used in the INLA function, we use the nb2INLA() function to convert the nb list into a file called map.adj. This step will make sure that we  have the representation of the neighborhood matrix as required by R-INLA. The map.adj file is saved in the working directory which can be obtained with getwd(). Then, we read the map.adj file using the inla.read.graph() function of R-INLA, and store it in the object g which we later use to specify the spatial model using R-INLA.
+
+```{r}
 nb2INLA("map.adj", nb)
 g <- inla.read.graph(filename = "map.adj")
-
-# g <- nb2mat(nb, style = "C")
 
 mn_data$re_u <- 1:nrow(mn_data)
 mn_data$re_v <- 1:nrow(mn_data)
 
+prior <- list(
+  prec = list(
+    prior = "pc.prec",
+    param = c(0.5 / 0.31, 0.01)),
+  phi = list(
+    prior = "pc",
+    param = c(0.5, 2 / 3))
+  )
 
 # Specify BYM model
-formula <- vble ~ HouseholdSizeE + IncomeE + 
+formula <- vble ~ 
   f(re_u, model = "besag", graph = g, scale.model = TRUE) +
   f(re_v, model = "iid")
 
-formula <- vble ~ HouseholdSizeE + IncomeE + 
-  f(re_u, model = "bym2", graph = g)
+formula <- vble ~ f(re_u, model = "bym2", graph = g, hyper = prior)
 
 res <- inla(formula, family = "gaussian", data = mn_data,
             control.predictor = list(compute = TRUE),
@@ -103,6 +125,25 @@ mn_data$PM <- res$summary.fitted.values[, "mean"]
 mn_data$LL <- res$summary.fitted.values[, "0.025quant"]
 mn_data$UL <- res$summary.fitted.values[, "0.975quant"]
 ```
+
+```{r}
+mapsf <- st_as_sf(mn_data)
+
+gRR <- ggplot(mn_data) + geom_sf(aes(fill = PM)) +
+  scale_fill_gradient2( midpoint = 12.5,low = "blue", high = "red") +
+  theme_bw()
+gLL <- ggplot(mn_data) + geom_sf(aes(fill = LL)) +
+  scale_fill_gradient2(midpoint = 12.5, low = "blue", high = "red") +
+  theme_bw()
+gUL <- ggplot(mn_data) + geom_sf(aes(fill = LL)) +
+  scale_fill_gradient2(midpoint = 12.5, low = "blue", high = "red") +
+  theme_bw()
+
+library(cowplot)
+plot_grid(gRR, gLL, gUL, ncol = 1)
+```
+
+
 
 ```{r}
 # common legend

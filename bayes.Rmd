@@ -15,20 +15,20 @@ by multiplying the data likelihood with the prior distributions and
 normalizing them to integrate into one.
 
 In a Bayesian framework, we first specify a likelihood function
-$\pi(y|\theta)$, describing the probability of observing data
-$y = (y_1, \dots, y_n)$ given parameters $\theta$. We assign a prior
-distribution $\pi(\theta|\eta)$ to $\theta$, where $\eta$ represents
+$\pi(y|x)$, describing the probability of observing data
+$y = (y_1, \dots, y_n)$ given parameters $x$. We assign a prior
+distribution $\pi(x|\theta)$ to $x$, where $\theta$ represents
 hyperparameters governing the parameter distribution. These priors
-encode our knowledge about $\theta$ before observing $y$. If
-hyperparameters $\eta$ are unknown, a fully Bayesian approach involves
-specifying a hyperprior distribution for $\eta$, or employing empirical
-Bayes with estimated $\eta$. Assuming $\eta$ is known, inference about
-$\theta$ relies on Bayes' Theorem: $$
-\pi ( \theta | y ) = \frac{\pi( y | \theta )  \pi(\theta)}{ \int \pi ( y | \theta) \pi ( \theta ) d \theta}
+encode our knowledge about $x$ before observing $y$. If hyperparameters
+$\theta$ are unknown, a fully Bayesian approach involves specifying a
+hyperprior distribution for $\theta$, or employing empirical Bayes with
+estimated $\theta$. Assuming $\theta$ is known, inference about $x$
+relies on Bayes' Theorem: $$
+\pi ( x | y ) = \frac{\pi( y | x )  \pi(x)}{ \int \pi ( y | x) \pi ( x) dx}
 $$ The denominator represents the marginal likelihood of $y$, acting as
 a scaling constant, leading to the proportional posterior distribution:
 $$
-\pi ( \theta | y ) \propto \pi( y | \theta )  \pi(\theta)
+\pi ( x| y ) \propto \pi( y | x )  \pi(x)
 $$
 
 Bayesian methods integrate prior beliefs into the model, updating them
@@ -45,11 +45,11 @@ solve this problem. MCMC is a simulation method, addressing cases where
 closed-form expressions for posterior distributions are unavailable.
 This is also the method we will generally learn in class. It simulates a
 Markov chain that converges to the desired posterior distribution by
-generating a sequence of parameter values $\theta^{(j)}$ for
-$j = 1, ..., n$. MCMC avoids explicit integration of the challenging or
-impossible marginal likelihood function by proposing new parameter
-values based on current ones, guided by an acceptance probability
-ensuring convergence to the stationary distribution.
+generating a sequence of parameter values MCMC avoids explicit
+integration of the challenging or impossible marginal likelihood
+function by proposing new parameter values based on current ones, guided
+by an acceptance probability ensuring convergence to the stationary
+distribution.
 
 Once convergence is achieved, sampled parameter values estimate key
 characteristics of the posterior distribution. Diagnostics like trace
@@ -186,7 +186,7 @@ nested fashion by first approximating $\pi(\theta|y)$ and
 $\pi(x_i|\theta,y)$, and then numerically integrating out $\theta$ as
 
 $$
-\pi(x_i|y)=\sum_k \tilde \pi(x_i|\theta_k,y)\times\tilde \pi(\theta_k|y)\times \Delta k,
+\pi(x_i|y)=\sum_k \tilde \pi(x_i|\theta_k,y)\times\tilde \pi(\theta_k|y)\times \Delta_k,
 $$
 
 where
