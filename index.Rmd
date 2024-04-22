@@ -17,5 +17,5 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 # Table of contents
-To start exploring, please simply navigate to tabs on the upper right corner. We will start by introducing Bayesian model, spatial model, and motivation behind this project, then diving into Bayesian Spatial Modeling, and ending up with a applied data simulation study. Have fun!
+To start exploring, please simply navigate to tabs on the upper right corner. We will start by introducing spatial model, Bayesian model, and motivation behind this project, then diving into Bayesian Spatial Modeling, and ending up with a applied data simulation study. Have fun!
 If you have any questions, please reach out to *czhang@macalester.edu* and *xli2@macalester.edu*. Thank you!
