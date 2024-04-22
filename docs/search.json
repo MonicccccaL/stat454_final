@@ -20,7 +20,7 @@
       "description": "Welcome to the website. This website introduces Bayesian Spatial Model in bayesian statistics. This is a class project from course STAT 454: Bayesian Statistics at Macalester College. The contents in this blog are collaborative efforts from Cynthia Zhang and Xiang Li.\n",
       "author": [],
       "contents": "\nTable of contents\nTo start exploring, please simply navigate to tabs on the upper right corner. We will start by introducing spatial model, Bayesian model, and motivation behind this project, then diving into Bayesian Spatial Modeling, and ending up with a applied data simulation study. Have fun!\nIf you have any questions, please reach out to czhang@macalester.edu and xli2@macalester.edu. Thank you!\n\n\n\n",
-      "last_modified": "2024-04-21T23:45:40-05:00"
+      "last_modified": "2024-04-22T00:18:43-05:00"
     },
     {
       "path": "sim.html",
