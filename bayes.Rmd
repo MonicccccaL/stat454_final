@@ -100,7 +100,8 @@ latent effects $x$ is assumed to be Gaussian Markov random field (GMRF).
 This GMRF will have a zero mean and precision matrix $Q(\theta_2)$, with
 $\theta_2$ a vector of hyperparameters. The vector of all
 hyperparameters in the model will be denoted by
-$\theta = (\theta_1, \theta_2)$.
+$\theta = (\theta_1, \theta_2)$, where we assign hyperpriors for
+$\theta$ to be denoted by $\theta \sim \pi(\theta)$.
 
 Moreover, given the vector of latent effects, $x$, and the
 hyperparameters, $\theta$, it is assumed that the observations are
