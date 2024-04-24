@@ -3,18 +3,37 @@ title: "House pricing: simulation activity in R"
 description: |
 ---
 
-# Spatial Modeling of Housing Prices {#sim}
-
 -   *Goal*: estimate housing prices in Hennepin and Ramsey county, Minneapolis, Minnesota using the **BYM** spatial model with **R-INLA** packages.
 
 ```{r include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, error=TRUE, warning=FALSE)
+```
+
+# The R-INLA Package
+
+The integrated nested Laplace approximation (INLA) approach is implemented in the R package R-INLA (Havard Rue, Lindgren, and Teixeira Krainski 2023). The INLA website (http://www.r-inla.org)) includes introductions, instructions for download, examples, and other resources (i.e. discussion group, news, etc.) about INLA and the R-INLA package (Wang, Ryan, and Faraway 2018; Krainski et al. 2019; Moraga 2019; Gómez-Rubio 2020).
+
+To install R-INLA, we use the install.packages() function specifying the R-INLA repository since the package is not on CRAN.
+
+```{r}
+install.packages("INLA",
+repos = "https://inla.r-inla-download.org/R/stable", dep = TRUE)
+library(INLA)
+```
+
+To fit a model using INLA in R, we typically define the linear predictor as a formula object. Then, we call the inla() function (MAIN function), passing the formula, the family distribution, the data, and any other necessary options. This function works in a similar way as the glm() functions that we mostly familiar with.
+
+# Spatial Modeling of Housing Prices
+
+## Housing Price Data in Hennepin and Ramsey county, Minneapolis, Minnesota
+
+```{r}
 library(dplyr)
 library(lubridate)
 library(stringr)
 library(ggplot2)
-library(sf) #install.packages('sf')
-library(spdep) #install.packages('spdep')
+library(sf) 
+library(spdep)
 library(GGally)
 library(tidyr)
 library(INLA)
@@ -22,19 +41,25 @@ library(mapview)
 library(Matrix)
 library(leafsync)
 library(spatialreg)
+library(gridExtra)
 ```
 
-## Housing Price Data in Hennepin and Ramsey county, Minneapolis, Minnesota
+We used the data from 2015-2019 American Community Service (https://www.census.gov/programs-surveys/acs) run by the U.S. Census Bureau. We used the housing prices in Hennipin and Ramsey county, Minnesota are gathered aggregate summaries of the people who live in Hennepin and Ramsey county, summarized for each census tract. A census tract is a statistical subdivision of a county that aims to have roughly 4,000 inhabitants and they are intended to be fairly homogeneous with respect to demographic and economic conditions. 
 
-The Hennepin and Ramsey housing prices are gathered aggregate summaries of the people who live in Hennepin and Ramsey county, summarized for each census tract based on data from 2015-2019 American Community Service run by the U.S. Census Bureau. A census tract is a statistical subdivision of a county that aims to have roughly 4,000 inhabitants and they are intended to be fairly homogeneous with respect to demographic and economic conditions. #need revision
+The plot on the left below shows the distribution of housing prices in Hennipin and Ramsey county. We observed that the distribution of the housing prices is skewed to the right. So, we applied a logarithmic transformation to housing prices to standardize their values. After standardized housing prices, we observed the housing prices distribution is normal distributed with a mean around 12.6.
 
-```{r}
+```{r fig.width=12, fig.height=6}
 load('SpatialData.RData')
-ggplot(mn_data, aes(x=HouseValueE))+
-  geom_density()
+mn <- ggplot(mn_data, aes(x=HouseValueE))+
+  geom_density() +
+  ggtitle("Housing Prices in Hennipin & Ramsey County")
+mn_log <- ggplot(mn_data, aes(x=log(HouseValueE)))+
+  geom_density()+
+  ggtitle("Logarithm of Housing Prices in Hennipin & Ramsey County")
+grid.arrange(mn, mn_log, ncol = 2)
 ```
 
-This dataset contains housing data of 464 Hennepin and Ramsey census tracts including median prices of housing in USD (`HouseValueE`), median household income in the past 12 months (in 2019 inflation) (`IncomeE`), and average household size of occupied houses (`HouseholdSizeE`). We create the variable called `vble` with the logarithm of the median prices to put it in the same scale, and map the log price using **mapview** (Figure 1). The map suggests that the housing prices are greater in the southwest, and prices are related to those in neighboring areas. Noted that the empty area is the University of Minnesota area, since there is no houses listed.
+This dataset contains housing data of 464 Hennepin and Ramsey census tracts including median prices of housing in USD (`HouseValueE`), median household income in the past 12 months (in 2019 inflation) (`IncomeE`), and average household size of occupied houses (`HouseholdSizeE`). We create the variable called `vble` with the logarithm of the median prices, and map the log price using **mapview** (Figure 1). The map suggests that the housing prices are greater in the southwest, and prices are related to those in neighboring areas. Noted that the empty area is the University of Minnesota area, since there is no houses listed.
 
 ***Figure 1** Logarithm of housing prices in Hennipin & Ramsey county, MN per census tract from the spData package*
 
@@ -81,7 +106,7 @@ Figure 3 shows a map with the neighbors obtained. This plot is obtained by first
 
 ***Figure 3** Neighborhood Network Structure*
 
-```{r}
+```{r fig.width=8, fig.height=6}
 plot(st_geometry(mn_data), border = "black")
 plot.nb(nb, st_geometry(mn_data), add = TRUE)
 ```

@@ -43,9 +43,9 @@ $$
 \end{array}
 $$
 
-The model can be split into two components, fixed effect
-$\beta_0 + x_{ik}\beta_k$ and random effect, $ø_i + \epsilon_i$. For the
-fixed effect, $\beta_0$ is the intercept, $\beta_k$ is a set of
+The model can be split into two components, fixed effect,
+$\beta_0 + x_{ik}\beta_k$, and random effect, $ø_i + \epsilon_i$. For
+the fixed effect, $\beta_0$ is the intercept, $\beta_k$ is a set of
 coefficients of k predictors we are interested in. The random effect
 includes spatial random effect $ø_i$ and non-spatial random effect
 $\epsilon_i$. Spatial random effect $ø_i$ accounts for the spatial
