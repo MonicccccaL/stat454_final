@@ -15,20 +15,20 @@ by multiplying the data likelihood with the prior distributions and
 normalizing them to integrate into one.
 
 In a Bayesian framework, we first specify a likelihood function
-$\pi(y|x)$, describing the probability of observing data
+$f(y|x)$, describing the probability of observing data
 $y = (y_1, \dots, y_n)$ given parameters $x$. We assign a prior
-distribution $\pi(x|\theta)$ to $x$, where $\theta$ represents
+distribution $f(x|\theta)$ to $x$, where $\theta$ represents
 hyperparameters governing the parameter distribution. These priors
 encode our knowledge about $x$ before observing $y$. If hyperparameters
 $\theta$ are unknown, a fully Bayesian approach involves specifying a
 hyperprior distribution for $\theta$, or employing empirical Bayes with
 estimated $\theta$. Assuming $\theta$ is known, inference about $x$
 relies on Bayes' Theorem: $$
-\pi ( x | y ) = \frac{\pi( y | x )  \pi(x)}{ \int \pi ( y | x) \pi ( x) dx}
+f ( x | y ) = \frac{f( y | x )  f(x)}{f(y)}
 $$ The denominator represents the marginal likelihood of $y$, acting as
 a scaling constant, leading to the proportional posterior distribution:
 $$
-\pi ( x| y ) \propto \pi( y | x )  \pi(x)
+f ( x| y ) \propto f( y | x )  f(x)
 $$
 
 Bayesian methods integrate prior beliefs into the model, updating them
@@ -101,7 +101,7 @@ This GMRF will have a zero mean and precision matrix $Q(\theta_2)$, with
 $\theta_2$ a vector of hyperparameters. The vector of all
 hyperparameters in the model will be denoted by
 $\theta = (\theta_1, \theta_2)$, where we assign hyperpriors for
-$\theta$ to be denoted by $\theta \sim \pi(\theta)$.
+$\theta$ to be denoted by $\theta \sim f(\theta)$.
 
 Moreover, given the vector of latent effects, $x$, and the
 hyperparameters, $\theta$, it is assumed that the observations are
