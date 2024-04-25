@@ -93,7 +93,8 @@ where,
     family distribution
 
 -   $x$: represents the latent Gaussian field, which the distribution is
-    assumed to be Gaussian Markov random field (GMRF)
+    assumed to be Gaussian Markov random field (GMRF). This $x$ is
+    different than the $x$ we used in the spatial model notations.
 
 -   $\theta$: hyperparameters, which always govern the distribution of
     other parameters in the model

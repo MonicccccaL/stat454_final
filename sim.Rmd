@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE, error=TRUE, warning=FALSE)
 
 # The R-INLA Package
 
-The integrated nested Laplace approximation (INLA) approach is implemented in the R package R-INLA (Havard Rue, Lindgren, and Teixeira Krainski 2023). The INLA website (http://www.r-inla.org)) includes introductions, instructions for download, examples, and other resources (i.e. discussion group, news, etc.) about INLA and the R-INLA package (Wang, Ryan, and Faraway 2018; Krainski et al. 2019; Moraga 2019; Gómez-Rubio 2020).
+The integrated nested Laplace approximation (INLA) approach is implemented in the R package R-INLA (Havard Rue, Lindgren, and Teixeira Krainski 2023). The INLA website (<http://www.r-inla.org>)) includes introductions, instructions for download, examples, and other resources (i.e. discussion group, news, etc.) about INLA and the R-INLA package (Wang, Ryan, and Faraway 2018; Krainski et al. 2019; Moraga 2019; Gómez-Rubio 2020).
 
 To install R-INLA, we use the install.packages() function specifying the R-INLA repository since the package is not on CRAN.
 
@@ -44,7 +44,7 @@ library(spatialreg)
 library(gridExtra)
 ```
 
-We used the data from 2015-2019 American Community Service (https://www.census.gov/programs-surveys/acs) run by the U.S. Census Bureau. We used the housing prices in Hennipin and Ramsey county, Minnesota are gathered aggregate summaries of the people who live in Hennepin and Ramsey county, summarized for each census tract. A census tract is a statistical subdivision of a county that aims to have roughly 4,000 inhabitants and they are intended to be fairly homogeneous with respect to demographic and economic conditions. 
+We used the data from 2015-2019 American Community Service (<https://www.census.gov/programs-surveys/acs>) run by the U.S. Census Bureau. We used the housing prices in Hennipin and Ramsey county, Minnesota are gathered aggregate summaries of the people who live in Hennepin and Ramsey county, summarized for each census tract. A census tract is a statistical subdivision of a county that aims to have roughly 4,000 inhabitants and they are intended to be fairly homogeneous with respect to demographic and economic conditions.
 
 The plot on the left below shows the distribution of housing prices in Hennipin and Ramsey county. We observed that the distribution of the housing prices is skewed to the right. So, we applied a logarithmic transformation to housing prices to standardize their values. After standardized housing prices, we observed the housing prices distribution is normal distributed with a mean around 12.6.
 
@@ -177,7 +177,7 @@ mn_data$UL <- res$summary.fitted.values[, "0.975quant"]
 
 Then, we create maps of these variables with **mapview** specifying a common legend for the three maps, and using a popup table with the name, the logarithm of the housing prices, the covariates the household size and the household income, and the posterior mean and 95% credible intervals that creates in the previous code chunk. We use the `sync()` function of **leafsync** to plot synchronized maps.
 
-```{r}
+```{r fig.width=12, fig.height=6}
 # common legend
 at <- seq(min(c(mn_data$PM, mn_data$LL, mn_data$UL)),
           max(c(mn_data$PM, mn_data$LL, mn_data$UL)),
@@ -190,10 +190,6 @@ zcol = c("NAME", "vble", "HouseholdSizeE", "IncomeE", "PM", "LL", "UL"),
 row.numbers = FALSE, feature.id = FALSE)
 
 m1 <- mapview(mn_data, zcol = "PM", map.types = "CartoDB.Positron",
-              at = at, popup = popuptable)
-m2 <- mapview(mn_data, zcol = "LL", map.types = "CartoDB.Positron",
-              at = at, popup = popuptable)
-m3 <- mapview(mn_data, zcol = "UL", map.types = "CartoDB.Positron",
               at = at, popup = popuptable)
 
 m <- leafsync::sync(m1, origin, ncol = 2)
@@ -221,36 +217,6 @@ yrep_inla <- as.matrix(bind_rows(rerun(50, lapply(marginals, function(x) sample(
 x <- list(y = mn_data$vble, yrep = yrep_inla[1:50, ])
 class(x) <- "foo"
 p2 <- pp_check(y = mn_data$vble, yrep = yrep_inla[1:50, ], type = "overlaid", fun = mean)
-```
-
-
-```{r}
-# Posterior mean and 95% CI
-mn_data$PMoriginal <- sapply(marginals_summaries, '[[', "mean") 
-mn_data$LLoriginal <- sapply(marginals_summaries, '[[', "quant0.025")
-mn_data$ULoriginal <- sapply(marginals_summaries, '[[', "quant0.975")
-
-# common legend
-at <- seq(min(c(mn_data$PMoriginal, mn_data$LLoriginal, mn_data$ULoriginal)),
-          max(c(mn_data$PMoriginal, mn_data$LLoriginal, mn_data$ULoriginal)),
-          length.out = 8)
-
-# popup table
-popuptable <- leafpop::popupTable(dplyr::mutate_if(mn_data,
-                                  is.numeric, round, digits = 2),
-zcol = c("NAME", "vble", "HouseholdSizeE", "IncomeE", "PM", "LL", "UL"),
-row.numbers = FALSE, feature.id = FALSE)
-
-m1 <- mapview(mn_data, zcol = "PMoriginal",
-              map.types = "CartoDB.Positron",
-              at = at, popup = popuptable)
-m2 <- mapview(mn_data, zcol = "LLoriginal",
-              map.types = "CartoDB.Positron",
-              at = at, popup = popuptable)
-m3 <- mapview(mn_data, zcol = "ULoriginal",
-              map.types = "CartoDB.Positron",
-              at = at, popup = popuptable)
-leafsync::sync(m1, m2, m3, ncol = 3)
 ```
 
 ------------------------------------------------------------------------
