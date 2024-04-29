@@ -3,18 +3,37 @@ title: "House pricing: simulation activity in R"
 description: |
 ---
 
-# Spatial Modeling of Housing Prices {#sim}
-
 -   *Goal*: estimate housing prices in Hennepin and Ramsey county, Minneapolis, Minnesota using the **BYM** spatial model with **R-INLA** packages.
 
 ```{r include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, error=TRUE, warning=FALSE)
+```
+
+# The R-INLA Package
+
+The integrated nested Laplace approximation (INLA) approach is implemented in the R package R-INLA (Havard Rue, Lindgren, and Teixeira Krainski 2023). The INLA website (<http://www.r-inla.org>)) includes introductions, instructions for download, examples, and other resources (i.e. discussion group, news, etc.) about INLA and the R-INLA package (Wang, Ryan, and Faraway 2018; Krainski et al. 2019; Moraga 2019; Gómez-Rubio 2020).
+
+To install R-INLA, we use the install.packages() function specifying the R-INLA repository since the package is not on CRAN.
+
+```{r}
+install.packages("INLA",
+repos = "https://inla.r-inla-download.org/R/stable", dep = TRUE)
+library(INLA)
+```
+
+To fit a model using INLA in R, we typically define the linear predictor as a formula object. Then, we call the inla() function (MAIN function), passing the formula, the family distribution, the data, and any other necessary options. This function works in a similar way as the glm() functions that we mostly familiar with.
+
+# Spatial Modeling of Housing Prices
+
+## Housing Price Data in Hennepin and Ramsey county, Minneapolis, Minnesota
+
+```{r}
 library(dplyr)
 library(lubridate)
 library(stringr)
 library(ggplot2)
-library(sf) #install.packages('sf')
-library(spdep) #install.packages('spdep')
+library(sf) 
+library(spdep)
 library(GGally)
 library(tidyr)
 library(INLA)
@@ -22,25 +41,46 @@ library(mapview)
 library(Matrix)
 library(leafsync)
 library(spatialreg)
+library(gridExtra)
 ```
 
+<<<<<<< HEAD
 ## Housing Value Data in Twins Cities
 
 Our project apply the methodology we previously talk about to the housing value data as a simulation. The regions we focus on are the Ramsey County and Hennepin County, roughly Twins Cities area, in Minnesota. The housing value are gathered aggregate summaries of the people who live in these two counties, summarized for each census tract based on 2015-2019 American Community Service (ACS) 5-year data set run by the U.S. Census Bureau. A census tract is a statistical subdivision of a county that aims to have roughly 4,000 inhabitants and they are intended to be fairly homogeneous with respect to demographic and economic conditions.
+=======
+We used the data from 2015-2019 American Community Service (<https://www.census.gov/programs-surveys/acs>) run by the U.S. Census Bureau. We used the housing prices in Hennipin and Ramsey county, Minnesota are gathered aggregate summaries of the people who live in Hennepin and Ramsey county, summarized for each census tract. A census tract is a statistical subdivision of a county that aims to have roughly 4,000 inhabitants and they are intended to be fairly homogeneous with respect to demographic and economic conditions.
 
-```{r}
+The plot on the left below shows the distribution of housing prices in Hennipin and Ramsey county. We observed that the distribution of the housing prices is skewed to the right. So, we applied a logarithmic transformation to housing prices to standardize their values. After standardized housing prices, we observed the housing prices distribution is normal distributed with a mean around 12.6.
+>>>>>>> e83188852ca72727a8b01b0fb87c0efee765b01e
+
+```{r fig.width=12, fig.height=6}
 load('SpatialData.RData')
-ggplot(mn_data, aes(x=HouseValueE))+
-  geom_density()
+mn <- ggplot(mn_data, aes(x=HouseValueE))+
+  geom_density() +
+  ggtitle("Housing Prices in Hennipin & Ramsey County")
+mn_log <- ggplot(mn_data, aes(x=log(HouseValueE)))+
+  geom_density()+
+  ggtitle("Logarithm of Housing Prices in Hennipin & Ramsey County")
+grid.arrange(mn, mn_log, ncol = 2)
 ```
 
+<<<<<<< HEAD
 This data set contains housing data of 464 Hennepin and Ramsey census tracts including median prices of housing in USD, median household income in the past 12 months (in 2019 inflation), and average household size of occupied houses. We take the logarithm of the median housing prices to put it in the same scale. Figure 1 below maps the distribution of log house price in the focused regions. The map suggests that the housing prices are greater in the southwest, and prices are related to those in neighboring areas. Noted that the empty area is the University of Minnesota area, since there is no houses listed.
+=======
+This dataset contains housing data of 464 Hennepin and Ramsey census tracts including median prices of housing in USD (`HouseValueE`), median household income in the past 12 months (in 2019 inflation) (`IncomeE`), and average household size of occupied houses (`HouseholdSizeE`). We create the variable called `vble` with the logarithm of the median prices, and map the log price using **mapview** (Figure 1). The map suggests that the housing prices are greater in the southwest, and prices are related to those in neighboring areas. Noted that the empty area is the University of Minnesota area, since there is no houses listed.
+>>>>>>> e83188852ca72727a8b01b0fb87c0efee765b01e
 
 ***Figure 1** Logarithm of housing prices in Hennipin & Ramsey county, MN per census tract from the spData package*
 
 ```{r}
 mn_data$vble <- log(mn_data$HouseValueE)
+<<<<<<< HEAD
 mapview(mn_data, zcol = "vble", layer.name = "log price")
+=======
+origin <- mapview(mn_data, zcol = "vble")
+origin
+>>>>>>> e83188852ca72727a8b01b0fb87c0efee765b01e
 ```
 
 We will model the logarithm of the median prices using as covariates the average Median household income in the past 12 months and the average household size. Figure 2 shows the relationships between pairs of variables visualized using the `ggpairs()` function of the GGally package (Schloerke et al. 2021). We observe a negative relationship between the logarithm of housing price and crime, and a positive relationship between the logarithm of housing price and the average number of rooms.
@@ -55,12 +95,11 @@ ggpairs(data = mn_data, columns = c("vble", "HouseholdSizeE", "IncomeE"), column
 
 Let $Y_i$ be the logarithm of housing price of area $i$, $i = 1 , \dots, n$. We fit a BYM model that considers $Y_i$ as the response variable, and household income and household size as covariates:
 
-$$
-Y_i \sim N(\mu_i,\sigma^2), i = 1, \dots, n \\
-\text{where }\mu_i=\beta_0+\beta_1 \times Income_i+\beta_2 \times HouseholdSize_i + u_i+v_i
 $$ 
-
-where, (Question? does this mean that each household has a seperate intercept) - $\beta_0$: the global intercept, which every household will have the same intercept. - $\beta_1$, $\beta_2$: represent respectively, the coefficients of the covariates household income and household size. - $\mu_i$: a spatially structured effect modeled with a CAR structure,$\mu_i| u_{-i} \sim N(\mu_{\delta_i}, \frac{\sigma^2_u}{n_{\delta_i}})$. - $v_i$: an unstructured effect modeled as $v_i \sim N(\theta, \sigma^2_v)$.
+Y \sim N(\mu_i,\sigma^2), i = 1, \dots, n \\
+\mu_i=\beta_0+\beta_1 \times Income+\beta_2 \times HouseholdSize + u_i+ε_i
+$$
+where, (Question? does this mean that each household has a seperate intercept) - $\beta_0$: the global intercept, which every household will have the same intercept. - $\beta_1$, $\beta_2$: represent respectively, the coefficients of the covariates household income and household size. - $\mu_i$: a spatially structured effect modeled with a CAR structure,$\mu_i| u_{-i} \sim N(\mu_{\delta_i}, \frac{\sigma^2_u}{n_{\delta_i}})$. - $ε_i$: an unstructured effect modeled as $ε _i \sim N(\theta, \sigma^2_ε )$.
 
 ## Neighborhood Matrix
 
@@ -80,7 +119,7 @@ Figure 3 shows a map with the neighbors obtained. This plot is obtained by first
 
 ***Figure 3** Neighborhood Network Structure*
 
-```{r fig.width=8, fig.height=8}
+```{r fig.width=8, fig.height=6}
 plot(st_geometry(mn_data), border = "black")
 plot.nb(nb, st_geometry(mn_data), add = TRUE)
 ```
@@ -94,21 +133,21 @@ g <- inla.read.graph(filename = "map.adj")
 
 ## inla() Call
 
-We specify the model formula by including the outcome and the fixed and random effects. In the formula, random effects are specified with the `f()` function. The index vectors of the random effects `re_u` and `re_v` are respectively created for spatial random effect, $u_i$, and unstructured effect, $v_i$. These vectors are equal to the number of areas from `mn_data`.
+We specify the model formula by including the outcome and the fixed and random effects. In the formula, random effects are specified with the `f()` function. The index vectors of the random effects `re_u` and `re_v` are respectively created for spatial random effect, $u_i$, and unstructured effect, $ε_i$. These vectors are equal to the number of areas from `mn_data`.
 
-For $u_i$ , we use `model = "besag"`, a popular model for spatial autocorrelation, with neighborhood matrix given by $g$ form the previous code. The option `scale.model = TRUE` is used to scale the precision parameter of models, making the spatial effects of models with different CAR priors comparable. For $v_i$ , we choose `model = "iid"`, which assuming there is no spatial autocorrelation structure.
+For $u_i$ , we use `model = "besag"`, a popular model for spatial autocorrelation, with neighborhood matrix given by $g$ form the previous code. The option `scale.model = TRUE` is used to scale the precision parameter of models, making the spatial effects of models with different CAR priors comparable. For $ε_i$ , we choose `model = "iid"`, which assuming there is no spatial autocorrelation structure.
 
 ```{r}
 mn_data$re_u <- 1:nrow(mn_data)
-mn_data$re_v <- 1:nrow(mn_data) 
+mn_data$re_e <- 1:nrow(mn_data) 
 
 # set up spatial model
 formula <- vble ~ IncomeE + HouseholdSizeE +
   f(re_u, model = "besag", graph = g, scale.model = TRUE) +
-  f(re_v, model = "iid")
+  f(re_e, model = "iid")
 ```
 
-In R-INLA, the BYM model can also be specified with `model = "bym"` and this comprises both the spatial and unstructured components. Alternatively, we can use the BYM2 model (Simpson et al. 2017) which is a reparametrization of the BYM model that uses a scaled spatial component $u_∗$ and an unstructured component $v_∗$, which allows for separate inference on the spatial and unstructured components. The formula of the model using the BYM2 component is specified as follows:
+In R-INLA, the BYM model can also be specified with `model = "bym"` and this comprises both the spatial and unstructured components. Alternatively, we can use the BYM2 model (Simpson et al. 2017) which is a reparametrization of the BYM model that uses a scaled spatial component $u_∗$ and an unstructured component $ε_∗$, which allows for separate inference on the spatial and unstructured components. The formula of the model using the BYM2 component is specified as follows:
 
 ```{r}
 # specify BYM
@@ -140,7 +179,7 @@ We can use `res$summary.fitted.values` to obtain a summary of the posterior dist
 summary(res$summary.fitted.values)
 ```
 
-We create variables with the posterior mean (PM) and lower (LL) and upper (UL) limits of 95% credible intervals  for each observation $i$ that we observed from previous tables.
+We create variables with the posterior mean (PM) and lower (LL) and upper (UL) limits of 95% credible intervals for each observation $i$ that we observed from previous tables.
 
 ```{r}
 # Posterior mean and 95% CI
@@ -151,7 +190,7 @@ mn_data$UL <- res$summary.fitted.values[, "0.975quant"]
 
 Then, we create maps of these variables with **mapview** specifying a common legend for the three maps, and using a popup table with the name, the logarithm of the housing prices, the covariates the household size and the household income, and the posterior mean and 95% credible intervals that creates in the previous code chunk. We use the `sync()` function of **leafsync** to plot synchronized maps.
 
-```{r}
+```{r fig.width=12, fig.height=6}
 # common legend
 at <- seq(min(c(mn_data$PM, mn_data$LL, mn_data$UL)),
           max(c(mn_data$PM, mn_data$LL, mn_data$UL)),
@@ -165,12 +204,8 @@ row.numbers = FALSE, feature.id = FALSE)
 
 m1 <- mapview(mn_data, zcol = "PM", map.types = "CartoDB.Positron",
               at = at, popup = popuptable)
-m2 <- mapview(mn_data, zcol = "LL", map.types = "CartoDB.Positron",
-              at = at, popup = popuptable)
-m3 <- mapview(mn_data, zcol = "UL", map.types = "CartoDB.Positron",
-              at = at, popup = popuptable)
 
-m <- leafsync::sync(m1, m2, m3, ncol = 3)
+m <- leafsync::sync(m1, origin, ncol = 2)
 m
 ```
 
@@ -179,41 +214,22 @@ m
 # the first area with inla.tmarginal()
 # inla.tmarginal(function(x) exp(x),
 #                res$marginals.fitted.values[[1]])
+library(bayesplot)
+library(ggplot2)
+library(ggpubr)
+library(tidyverse)
 
-# Transformation marginals with inla.tmarginal()
-marginals <- lapply(res$marginals.fitted.values,
-FUN = function(marg){inla.tmarginal(function(x) exp(x), marg)})
+fitted_dist <- res$marginals.fitted.values
 
-# Obtain summaries of the marginals with inla.zmarginal()
-marginals_summaries <- lapply(marginals,
-FUN = function(marg){inla.zmarginal(marg)})
+marginals <- lapply(fitted_dist, FUN = function(vble) inla.tmarginal(function(x) {x}, vble)) %>% 
+  map(~ as.data.frame(.) %>% rename(., xx = x))
 
-# Posterior mean and 95% CI
-mn_data$PMoriginal <- sapply(marginals_summaries, '[[', "mean") 
-mn_data$LLoriginal <- sapply(marginals_summaries, '[[', "quant0.025")
-mn_data$ULoriginal <- sapply(marginals_summaries, '[[', "quant0.975")
+# Obtain summaries of the marginals
+yrep_inla <- as.matrix(bind_rows(rerun(50, lapply(marginals, function(x) sample(x$xx, 1)) %>% as.data.frame())))
 
-# common legend
-at <- seq(min(c(mn_data$PMoriginal, mn_data$LLoriginal, mn_data$ULoriginal)),
-          max(c(mn_data$PMoriginal, mn_data$LLoriginal, mn_data$ULoriginal)),
-          length.out = 8)
-
-# popup table
-popuptable <- leafpop::popupTable(dplyr::mutate_if(mn_data,
-                                  is.numeric, round, digits = 2),
-zcol = c("NAME", "vble", "HouseholdSizeE", "IncomeE", "PM", "LL", "UL"),
-row.numbers = FALSE, feature.id = FALSE)
-
-m1 <- mapview(mn_data, zcol = "PMoriginal",
-              map.types = "CartoDB.Positron",
-              at = at, popup = popuptable)
-m2 <- mapview(mn_data, zcol = "LLoriginal",
-              map.types = "CartoDB.Positron",
-              at = at, popup = popuptable)
-m3 <- mapview(mn_data, zcol = "ULoriginal",
-              map.types = "CartoDB.Positron",
-              at = at, popup = popuptable)
-leafsync::sync(m1, m2, m3, ncol = 3)
+x <- list(y = mn_data$vble, yrep = yrep_inla[1:50, ])
+class(x) <- "foo"
+p2 <- pp_check(y = mn_data$vble, yrep = yrep_inla[1:50, ], type = "overlaid", fun = mean)
 ```
 
 ------------------------------------------------------------------------
