@@ -7,6 +7,10 @@ description: |
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+# Motivation of the project
+
+Forecasting future outcomes is a crucial objective across numerous fields, encompassing economics, healthcare, and various social sciences. The capacity of Bayesian hierarchical models to amalgamate prior knowledge with observed data while quantifying uncertainty and enabling flexible model specification is pivotal for their utility across diverse disciplines. Xiang and Cynthia both come from an economic background and have some knowledge of spatial modeling from the course *Correlated Data (F23)*. We teamed up and decided to investigate a novel, expedited Bayesian approach, integrated nested Laplace approximation (INLA), which integrates spatial data and modeling techniques and employs this Bayesian spatial model to address economic inquiries.
+
 # Introduction
 
 <blockquote>
@@ -25,10 +29,7 @@ When analyzing data, particularly spatial data, it's crucial to account for comp
 
 Hierarchical models offer a compelling solution to this challenge by striking a balance between recognizing individuality and shared information among groups within the data. In the realm of spatial data analysis, hierarchical models shine, allowing us to seamlessly incorporate spatial structure and dependencies. These models not only capture the variability in response variables based on known covariates but also accommodate residual variation through random effects. This flexibility empowers us to assess explanatory variables, address spatial autocorrelation, and quantify uncertainty with precision.
 
-In the realm of statistics, our journey is guided by a shared quest to glean insights from data and better understand the world around us. While frequentist analysis, prevalent in introductory statistics courses, focuses on the properties of observed data, Bayesian analysis takes a broader perspective. It integrates prior beliefs with observed data, leveraging the power of probability distributions to quantify uncertainty. The cornerstone of Bayesian inference is the **Bayes' Theorem**, where: $$P(A|B)=\frac{P(B|A)P(A)}{P(B)}.$$
+In the realm of statistics, our journey is guided by a shared quest to glean insights from data and better understand the world around us. While frequentist analysis, prevalent in introductory statistics courses, focuses on the properties of observed data, Bayesian analysis takes a broader perspective. It integrates prior beliefs with observed data, leveraging the power of probability distributions to quantify uncertainty. 
 
-In the context of spatial modeling, Bayesian hierarchical models are particularly advantageous. They allow for the incorporation of prior information, spatial structure, and dependencies, providing a comprehensive framework for spatial data analysis. One notable approach in this domain is **the integrated nested Laplace approximation (INLA)**, which combines analytically approximations and numerical algorithms to approximate posterior distributions with closed-form expressions. INLA is especially useful for fitting spatial models efficiently and accurately, making it a valuable tool for spatial data analysis in various research fields!
+In the context of spatial modeling, Bayesian models are particularly advantageous. They allow for the incorporation of prior information, spatial structure, and dependencies, providing a comprehensive framework for spatial data analysis. One notable approach in this domain is **the integrated nested Laplace approximation (INLA)**, which combines analytically approximations and numerical algorithms to approximate posterior distributions with closed-form expressions. INLA is especially useful for fitting spatial models efficiently and accurately, making it a valuable tool for spatial data analysis in various research fields!
 
-# Motivation of the project
-
-Forecasting future outcomes is a crucial objective across numerous fields, encompassing economics, healthcare, and various social sciences. The capacity of Bayesian hierarchical models to amalgamate prior knowledge with observed data while quantifying uncertainty and enabling flexible model specification is pivotal for their utility across diverse disciplines. Xiang and Cynthia both come from an economic background and have some knowledge of spatial modeling from the course *Correlated Data (F23)*. We teamed up and decided to investigate a novel, expedited Bayesian approach, integrated nested Laplace approximation (INLA), which integrates spatial data and modeling techniques and employs this Bayesian spatial model to address economic inquiries.
