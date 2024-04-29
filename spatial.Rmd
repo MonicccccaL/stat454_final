@@ -46,11 +46,13 @@ $$Q = D - W$$
 
 In the ICAR model, $ø_i$ is normally distributed with the mean equal to the average of neighbor values. That is saying the spatial effect of region $i$ is determined by the mean of its neighbors’ spatial effect. The conditional specification of ICAR model is
 $$ø_i | ø_j, i ≠ j \sim N(\sum ø_j/n, \sigma_i^2/n)$$
-$\sigma_i^2 /n$ implies that the variance of spatial effect decreases as the number of neighbors increases. In other words, if the region has more neighbors, we are more confident in estimating its spatial effect. 
+$\sigma_i^2/n$ implies that the variance of spatial effect decreases as the number of neighbors increases. In other words, if the region has more neighbors, we are more confident in estimating its spatial effect. 
 
 
 # BYM2 Model
 In the previous section, we discussed the BYM model. However, because of the lack of informative hyperpriors specific for $ø$ and $\epsilon$, the BYM model could be challenging to fit. Riebler et al. (2016) further explained the issue of the BYM model that it has unnecessary long computation time when fitting the model. So, building on to the BYM model, the BYM2 model, described by Riebler et al. (2016) and Simpson et al. (2017), aims to solve these problems by adding new parameters $\rho$, $s$, $\sigma_c$. It is also the final model we are using in this project. 
+
+
 Same as the BYM model, the BYM2 model also includes the spatial random effect and non-spatial random effect (noise), but placing those parameters on the error terms. $\sigma_c$ is a single scale parameter placed on the combined random effect terms, meaning the standard deviation of the combined error terms. $\rho \in [0, 1]$ is a mixing parameter for the proportion of variance coming from the spatial random effect. $s$ is a scaling factor scaling the proportion $\rho$ to make the standard deviation of the combined error terms $\sigma_c$ legitimately. With all those, the BYM2 model is specified as
 
 $$\begin{array}{lrl}

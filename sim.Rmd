@@ -24,9 +24,9 @@ library(leafsync)
 library(spatialreg)
 ```
 
-## Housing Price Data in Hennepin and Ramsey county, Minneapolis, Minnesota
+## Housing Value Data in Twins Cities
 
-The Hennepin and Ramsey housing prices are gathered aggregate summaries of the people who live in Hennepin and Ramsey county, summarized for each census tract based on data from 2015-2019 American Community Service run by the U.S. Census Bureau. A census tract is a statistical subdivision of a county that aims to have roughly 4,000 inhabitants and they are intended to be fairly homogeneous with respect to demographic and economic conditions. #need revision
+Our project apply the methodology we previously talk about to the housing value data as a simulation. The regions we focus on are the Ramsey County and Hennepin County, roughly Twins Cities area, in Minnesota. The housing value are gathered aggregate summaries of the people who live in these two counties, summarized for each census tract based on 2015-2019 American Community Service (ACS) 5-year data set run by the U.S. Census Bureau. A census tract is a statistical subdivision of a county that aims to have roughly 4,000 inhabitants and they are intended to be fairly homogeneous with respect to demographic and economic conditions.
 
 ```{r}
 load('SpatialData.RData')
@@ -34,21 +34,21 @@ ggplot(mn_data, aes(x=HouseValueE))+
   geom_density()
 ```
 
-This dataset contains housing data of 464 Hennepin and Ramsey census tracts including median prices of housing in USD (`HouseValueE`), median household income in the past 12 months (in 2019 inflation) (`IncomeE`), and average household size of occupied houses (`HouseholdSizeE`). We create the variable called `vble` with the logarithm of the median prices to put it in the same scale, and map the log price using **mapview** (Figure 1). The map suggests that the housing prices are greater in the southwest, and prices are related to those in neighboring areas. Noted that the empty area is the University of Minnesota area, since there is no houses listed.
+This data set contains housing data of 464 Hennepin and Ramsey census tracts including median prices of housing in USD, median household income in the past 12 months (in 2019 inflation), and average household size of occupied houses. We take the logarithm of the median housing prices to put it in the same scale. Figure 1 below maps the distribution of log house price in the focused regions. The map suggests that the housing prices are greater in the southwest, and prices are related to those in neighboring areas. Noted that the empty area is the University of Minnesota area, since there is no houses listed.
 
 ***Figure 1** Logarithm of housing prices in Hennipin & Ramsey county, MN per census tract from the spData package*
 
 ```{r}
 mn_data$vble <- log(mn_data$HouseValueE)
-mapview(mn_data, zcol = "vble")
+mapview(mn_data, zcol = "vble", layer.name = "log price")
 ```
 
-We will model the logarithm of the median prices using as covariates the average Median household income in the past 12 months (`IncomeE`) and the average household size (`HouseholdSizeE`). Figure 2 shows the relationships between pairs of variables visualized using the `ggpairs()` function of the GGally package (Schloerke et al. 2021). We observe a negative relationship between the logarithm of housing price and crime, and a positive relationship between the logarithm of housing price and the average number of rooms.
+We will model the logarithm of the median prices using as covariates the average Median household income in the past 12 months and the average household size. Figure 2 shows the relationships between pairs of variables visualized using the `ggpairs()` function of the GGally package (Schloerke et al. 2021). We observe a negative relationship between the logarithm of housing price and crime, and a positive relationship between the logarithm of housing price and the average number of rooms.
 
-***Figure 2** Relationship between the outcome variable logarithm of housing price (`vble`), and the average Median household income in the past 12 months (`IncomeE`) and the average household size (`HouseholdSizeE`).*
+***Figure 2** Relationship between the outcome variable logarithm of housing price, and the average Median household income in the past 12 months and the average household size.*
 
 ```{r}
-ggpairs(data = mn_data, columns = c("vble", "HouseholdSizeE", "IncomeE"))
+ggpairs(data = mn_data, columns = c("vble", "HouseholdSizeE", "IncomeE"), columnLabels = c("log price", "Household Size", "Income"))
 ```
 
 ## General Model
@@ -56,8 +56,8 @@ ggpairs(data = mn_data, columns = c("vble", "HouseholdSizeE", "IncomeE"))
 Let $Y_i$ be the logarithm of housing price of area $i$, $i = 1 , \dots, n$. We fit a BYM model that considers $Y_i$ as the response variable, and household income and household size as covariates:
 
 $$
-Y \sim N(\mu_i,\sigma^2), i = 1, \dots, n \\
-\mu_i=\beta_0+\beta_1 \times Income+\beta_2 \times HouseholdSize + u_i+v_i
+Y_i \sim N(\mu_i,\sigma^2), i = 1, \dots, n \\
+\text{where }\mu_i=\beta_0+\beta_1 \times Income_i+\beta_2 \times HouseholdSize_i + u_i+v_i
 $$ 
 
 where, (Question? does this mean that each household has a seperate intercept) - $\beta_0$: the global intercept, which every household will have the same intercept. - $\beta_1$, $\beta_2$: represent respectively, the coefficients of the covariates household income and household size. - $\mu_i$: a spatially structured effect modeled with a CAR structure,$\mu_i| u_{-i} \sim N(\mu_{\delta_i}, \frac{\sigma^2_u}{n_{\delta_i}})$. - $v_i$: an unstructured effect modeled as $v_i \sim N(\theta, \sigma^2_v)$.
@@ -80,7 +80,7 @@ Figure 3 shows a map with the neighbors obtained. This plot is obtained by first
 
 ***Figure 3** Neighborhood Network Structure*
 
-```{r}
+```{r fig.width=8, fig.height=8}
 plot(st_geometry(mn_data), border = "black")
 plot.nb(nb, st_geometry(mn_data), add = TRUE)
 ```
