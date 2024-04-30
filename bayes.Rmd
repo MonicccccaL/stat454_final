@@ -135,14 +135,14 @@ independent of each other. This implies that the **likelihood function**
 can be expressed as:
 
 $$
-f(y|x,\theta)=\prod_{i \in \mathcal {I}} f(y_i|\eta_i, \theta)
+f(y|x,\theta)=\prod_{i \in I} f(y_i|\eta_i, \theta)
 $$
 
 where,
 
--   $\mathcal{I}$: contains the indices for all observed values of $y$.
-    In other words, the indices of the observations for which we have
-    actual data.
+-   $I$: contains the indices for all observed values of $y$. In other
+    words, the indices of the observations for which we have actual
+    data.
 
 INLA uses a combination of analytically approximations and numerical
 integration to obtain approximated posterior distributions of the
@@ -158,16 +158,16 @@ The joint posterior distribution of the effects and hyperparameters can
 be expressed as:
 
 $$
-f(x,\theta|y)\propto f(θ)f(x|\theta) \prod_{i \in \mathcal {I}} f(y_i|x_i, \theta)\\
-\propto f(\theta)|Q(\theta)|^{\frac{1}{2}} exp \{ −\frac{1}{2}x^\top Q(\theta)x + \sum_{i \in \mathcal{I}}log(f(y_i|x_i,\theta)) \}.
+f(x,\theta|y)\propto f(θ)f(x|\theta) \prod_{i \in I} f(y_i|x_i, \theta)\\
+\propto f(\theta)|Q(\theta)|^{\frac{1}{2}} exp \{ −\frac{1}{2}x^\top Q(\theta)x + \sum_{i \in I}log(f(y_i|x_i,\theta)) \}.
 $$
 
 where,
 
--   $x_i = \eta_i$ when $i \in \mathcal{I}$, since mentioned above
-    $\eta_i$ is part of vector $x$. This implies that for observations
-    in the set of observed values, the latent effects $x_i$​ are directly
-    equal to the corresponding latent linear predictors $\eta_i$
+-   $x_i = \eta_i$ when $i \in I$, since mentioned above $\eta_i$ is
+    part of vector $x$. This implies that for observations in the set of
+    observed values, the latent effects $x_i$​ are directly equal to the
+    corresponding latent linear predictors $\eta_i$
 
 Now we can calculate the **marginal distributions** (MAIN GOAL!!) for
 the latent Gaussian variables, $x$, and hyperparameter, $\theta$. It can
