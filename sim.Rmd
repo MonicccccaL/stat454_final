@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE, error=TRUE, warning=FALSE)
 
 # The R-INLA Package
 
-The integrated nested Laplace approximation (INLA) approach is implemented in the R package R-INLA (Havard Rue, Lindgren, and Teixeira Krainski 2023). The INLA website http://www.r-inla.org includes introductions, instructions for download, examples, and other resources (i.e. discussion group, news, etc.) about INLA and the R-INLA package (Wang, Ryan, and Faraway 2018; Krainski et al. 2019; Moraga 2019; Gómez-Rubio 2020).
+The integrated nested Laplace approximation (INLA) approach is implemented in the R package R-INLA (Havard Rue, Lindgren, and Teixeira Krainski 2023). The INLA website <http://www.r-inla.org> includes introductions, instructions for download, examples, and other resources (i.e. discussion group, news, etc.) about INLA and the R-INLA package (Wang, Ryan, and Faraway 2018; Krainski et al. 2019; Moraga 2019; Gómez-Rubio 2020).
 
 To install R-INLA, we use the install.packages() function specifying the R-INLA repository since the package is not on CRAN.
 
@@ -26,25 +26,26 @@ To fit a model using INLA in R, we typically define the linear predictor as a fo
 
 ## Housing Price Data in Hennepin and Ramsey county, Minneapolis, Minnesota
 
-```{r message=FALSE}
+```{r message=FALSE, echo=FALSE}
 library(dplyr)
 library(lubridate)
 library(stringr)
-
+library(ggplot2)
 library(sf) 
-
-
+library(spdep)
+library(GGally)
 library(tidyr)
-
+library(INLA)
+library(mapview)
 library(Matrix)
 library(leafsync)
 library(spatialreg)
-
+library(gridExtra)
 ```
 
 ## Housing Value Data in Twins Cities
 
-We used the data from 2015-2019 American Community Service (https://www.census.gov/programs-surveys/acs) run by the U.S. Census Bureau. We used the housing prices in Hennipin and Ramsey county, Minnesota are gathered aggregate summaries of the people who live in Hennepin and Ramsey county, summarized for each census tract. A census tract is a statistical subdivision of a county that aims to have roughly 4,000 inhabitants and they are intended to be fairly homogeneous with respect to demographic and economic conditions.
+We used the data from 2015-2019 American Community Service (<https://www.census.gov/programs-surveys/acs>) run by the U.S. Census Bureau. We used the housing prices in Hennipin and Ramsey county, Minnesota are gathered aggregate summaries of the people who live in Hennepin and Ramsey county, summarized for each census tract. A census tract is a statistical subdivision of a county that aims to have roughly 4,000 inhabitants and they are intended to be fairly homogeneous with respect to demographic and economic conditions.
 
 The plot on the left below shows the distribution of housing prices in Hennipin and Ramsey county. We observed that the distribution of the housing prices is skewed to the right. So, we applied a logarithmic transformation to housing prices to standardize their values. After standardized housing prices, we observed the housing prices distribution is normal distributed with a mean around 12.6.
 
@@ -94,12 +95,9 @@ Let $Y_i$ be the logarithm of housing price of area $i$, $i = 1 , \dots, n$. We 
 $$ 
 Y_i \sim N(\mu_i,\sigma^2), i = 1, \dots, n \\
 \text{where } \mu_i=\beta_0+\beta_1 \times Income_i+\beta_2 \times HouseholdSize_i + u_i+ε_i
-$$
-where, - $\beta_0$: the global intercept, measuring the typical log housing price when all the predictors are 0. - $\beta_1$, $\beta_2$: represent respectively, the coefficients of the covariates household income and household size. - $\mu_i$: a spatially structured effect modeled with a CAR structure,$\mu_i| u_{-i} \sim N(\mu_{\delta_i}, \frac{\sigma^2_u}{n_{\delta_i}})$. - $ε_i$: an unstructured effect modeled as $ε _i \sim N(0, \sigma^2_ε)$.
+$$ where, - $\beta_0$: the global intercept, measuring the typical log housing price when all the predictors are 0. - $\beta_1$, $\beta_2$: represent respectively, the coefficients of the covariates household income and household size. - $\mu_i$: a spatially structured effect modeled with a CAR structure,$\mu_i| u_{-i} \sim N(\mu_{\delta_i}, \frac{\sigma^2_u}{n_{\delta_i}})$. - $ε_i$: an unstructured effect modeled as $ε _i \sim N(0, \sigma^2_ε)$.
 
-
-Building on to that, we construct the BYM2 model. Like what we introduced in the spatial model section, BYM2 model (Simpson et al. 2017) is a re-parametrization and re-scaling of the BYM model that uses a scaled spatial component $u_i$ and the unstructured component $ε_i$ to allows for separate inference on the spatial and unstructured components. This leads to our ultimate model:
-$$
+Building on to that, we construct the BYM2 model. Like what we introduced in the spatial model section, BYM2 model (Simpson et al. 2017) is a re-parametrization and re-scaling of the BYM model that uses a scaled spatial component $u_i$ and the unstructured component $ε_i$ to allows for separate inference on the spatial and unstructured components. This leads to our ultimate model: $$
 \begin{array}
 \text{} & Y_i \sim N(\mu_i,\sigma^2)\;\;
 \text{where } \mu_i=\beta_0+\beta_1 \times Income_i+\beta_2 \times HouseholdSize_i + (\sqrt{\frac{\rho}{s}}u_i+\sqrt{1-\rho_i}\epsilon_i)\sigma_c\\
@@ -113,13 +111,11 @@ $$
 & \rho \sim Beta(0.5,0.5)\\
 & \sigma_c \sim N(0,1)
 \end{array}
-$$
-The notation has the same meaning as above besides the new-added parameters $\sigma_c$, $\rho$, and $s$ (detailed explanations in spatial model section).
-
+$$ The notation has the same meaning as above besides the new-added parameters $\sigma_c$, $\rho$, and $s$ (detailed explanations in spatial model section).
 
 ## Neighborhood Structure
 
-In the both BYM and BYM2 model, the spatial random effect $u_i$ needs to be specified using a neighborhood structure. Like what we discussed in spatial model section, we are using **Queen neighborhood structure**, which we assume two areas are neighbors if they share a common edge or a common vertex, to specify the spatial correlation. 
+In the both BYM and BYM2 model, the spatial random effect $u_i$ needs to be specified using a neighborhood structure. Like what we discussed in spatial model section, we are using **Queen neighborhood structure**, which we assume two areas are neighbors if they share a common edge or a common vertex, to specify the spatial correlation.
 
 We create a neighborhood structure using functions of the **spdep** package (Bivand 2022). First, we use the poly2nb() function to generate a spatial weights matrix (nb) based on the data (mn_data) and using queen contiguity to define neighborhood relationships between polygons. Each element of the list nb represents one area and contains the indices of its neighbors. For example, nb[[1]] contains indices of neighboring polygons in area 1.
 
@@ -147,11 +143,9 @@ nb2INLA("map.adj", nb)
 g <- inla.read.graph(filename = "map.adj")
 ```
 
-
 ## inla() Call
 
 We specify the model formula by including the outcome and the fixed and random effects. In the formula, random effects are specified with the `f()` function. The index vectors of the random effects `re_u` and `re_v` are respectively created for spatial random effect, $u_i$, and unstructured effect, $ε_i$. These vectors are equal to the number of areas from `mn_data`.
-
 
 For $u_i$ , we use `model = "besag"`, a popular model for spatial autocorrelation, with neighborhood matrix given by $g$ form the previous code. The option `scale.model = TRUE` is used to scale the precision parameter of models, making the spatial effects of models with different CAR priors comparable. For $ε_i$ , we choose `model = "iid"`, which assuming there is no spatial autocorrelation structure. In R-INLA, the BYM model can also be specified with `model = "bym"` and this comprises both the spatial and unstructured components.
 
@@ -191,16 +185,10 @@ res$summary.fixed
 
 Here, we observe the intercept, $\hat {\beta_0}$, is 1.236 with a 95% credible interval equal to (1.224, 1.248). We observe the coefficient of household income, $\hat {\beta_1}$, is $5.583 \times 10^{-6}$ with a 95% credible interval equal to ($4.907 \times 10^{-6}$, $6.257 \times 10^{-6}$). This indicates household income is statistically significantly, and it is positively related to housing price. This could be interpreted as with the same household size, as the household income increase by 1 dollar, the house value also increases by about 1 (exp($5.583 \times 10^{-6}$)) dollar. The coefficient of household size, $\hat {\beta_2}$, is -0.0759 with a 95% credible interval equal to (-0.127, -0.0247). This indicates household size is significantly negatively related to housing price. The coefficient can be interpreted as with the same household income, 1 unit increases in household size is associated with 0.93 (exp(-0.076)) dollar increase in house value.
 
-
 We can use `res$summary.fitted.values` to obtain a summary of the posterior distributions of the response $\mu_i$ for each of the areas. Column `mean` indicates the posterior mean for housing values for each observation $i$. Columns `0.025quant` and `0.975quant` are the lower and upper limits of 95% credible intervals representing the uncertainty of the estimates obtained.
 
 ```{r}
 summary(res$summary.fitted.values)
-```
-
-```{r echo=FALSE}
-# mn_data$LL <- res$summary.fitted.values[, "0.025quant"]
-# mn_data$UL <- res$summary.fitted.values[, "0.975quant"]
 ```
 
 ## Model Evaluation
@@ -208,14 +196,11 @@ summary(res$summary.fitted.values)
 To evaluate the BYM2 model we fitted, we map the posterior prediction from the model we fitted and compare that with the distribution of the actual log housing value. We use the posterior mean from previous tables to plot the predicted log house value distribution. The two maps display a similar distribution which demonstrates that the BYM2 model we fitted make successful prediction on housing price in Twins Cities area.
 
 ***Figure 4** Comparison between Actual Value and Predicted Value*
+
 ```{r fig.width=12, fig.height=6}
 # Posterior mean and 95% CI
 mn_data$PM <- res$summary.fitted.values[, "mean"]
 
-# common legend
-# at <- seq(min(c(mn_data$PM, mn_data$LL, mn_data$UL)),
-#           max(c(mn_data$PM, mn_data$LL, mn_data$UL)),
-#           length.out = 8)
 at <- seq(min(mn_data$PM), max(mn_data$PM), length.out = 8)
 
 # popup table
@@ -232,31 +217,8 @@ m <- leafsync::sync(m1, origin, ncol = 2)
 m
 ```
 
-```{r echo=FALSE}
-# Transformation of the marginal of
-# the first area with inla.tmarginal()
-# inla.tmarginal(function(x) exp(x),
-#                res$marginals.fitted.values[[1]])
-# library(bayesplot)
-# library(ggplot2)
-# library(ggpubr)
-# library(tidyverse)
-# 
-# fitted_dist <- res$marginals.fitted.values
-# 
-# marginals <- lapply(fitted_dist, FUN = function(vble) inla.tmarginal(function(x) {x}, vble)) %>% 
-#   map(~ as.data.frame(.) %>% rename(., xx = x))
-# 
-# # Obtain summaries of the marginals
-# yrep_inla <- as.matrix(bind_rows(rerun(50, lapply(marginals, function(x) sample(x$xx, 1)) %>% as.data.frame())))
-# 
-# x <- list(y = mn_data$vble, yrep = yrep_inla[1:50, ])
-# class(x) <- "foo"
-# p2 <- pp_check(y = mn_data$vble, yrep = yrep_inla[1:50, ], type = "overlaid", fun = mean)
-```
-
 ------------------------------------------------------------------------
 
 # Conclusion
-In conclude, in this section, we apply the BYM2 spatial model find the association between housing value and income and household size. We use this model to set up a not informative prior(?). Within the model, we use the Queen neighborhood structure to explain the spatial correlation. The data we use is the housing value of each census tract in Twins Cities area. Next, we use INLA as the tool to simulate the posterior and then interpret and evaluate the results we get from the simulation. From the summary of the posterior, we get the results that there is a significant positive association between income and house value, which the housing value for families who have higher household income tends to be higher. We also find that there is a significant negative association between household size and house value, meaning that the housing value tends to be lower for those with large household size. By comparing the predicted housing value using the BYM2 model with the actual value in the original data set, we observe a similar distribution. This demonstrates that the BYM2 model we applied is accurate and the results we conclude is convincing.
 
+In conclude, in this section, we apply the BYM2 spatial model find the association between housing value and income and household size. We use this model to set up a not informative prior. Within the model, we use the Queen neighborhood structure to explain the spatial correlation. The data we use is the housing value of each census tract in Twins Cities area. Next, we use INLA as the tool to simulate the posterior and then interpret and evaluate the results we get from the simulation. From the summary of the posterior, we get the results that there is a significant positive association between income and house value, which the housing value for families who have higher household income tends to be higher. We also find that there is a significant negative association between household size and house value, meaning that the housing value tends to be lower for those with large household size. By comparing the predicted housing value using the BYM2 model with the actual value in the original data set, we observe a similar distribution. This demonstrates that the BYM2 model we applied is accurate and the results we conclude is convincing.

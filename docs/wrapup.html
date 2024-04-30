@@ -2127,7 +2127,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <a href="index.html" class="title">Bayesian Statistics: Bayesian Spatial Modeling</a>
 </div>
 <div class="nav-right">
-<a href="contents.html">Home</a>
+<a href="index.html">Home</a>
 <a href="about.html">Intro</a>
 <a href="spatial.html">Spatial Model</a>
 <a href="bayes.html">INLA</a>
@@ -2151,7 +2151,13 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
 <div class="d-article">
-<p><strong>Reference</strong>:</p>
+<h1 id="conclusion-limitations">Conclusion &amp; Limitations</h1>
+<p>This project introduces the spatial model BYM and the Bayesian posterior simulation tool INLA. We apply those new methods to the Twins Cities housing value data set as an example. Of course, there are limitations in this project. Firstly, the usage of INLA is controversial. We have been introduced that INLA may not be the best tool for posterior simulation when we have a large data set. Also, there is complicate maths behind those methods which we did not discuss in details at this stage. When building the regression model, we only consider two predictors, income and household size, which is far from enough and the results could be biased.</p>
+<h1 id="future-research-direction">Future Research Direction</h1>
+<p>For further investigation, we can explore more on BYM model and INLA to gain a deeper understanding. Since we don’t specified our prior when we applied to the Twin Cities data, we can specify our hyperprior or prior future in the future research. We can also add more predictors that correlate with housing value in the model to remove more biases.</p>
+<h1 id="acknowledgements">Acknowledgements</h1>
+<p>Special thanks to Professor Alicia Johnson for the invaluable guidance throughout this project and Professor Taylor Okonek and Professor Brianna Heggeseth for the external academic support.</p>
+<h1 id="reference">Reference:</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->

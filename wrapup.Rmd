@@ -3,12 +3,18 @@ title: "Wrap-up and Conclusion"
 description: |
 ---
 
-This project introduces the spatial model BYM and the Bayesian posterior simulation tool INLA. We apply those new methods to the Twins Cities housing value data set as an example. Of course, there are limitations in this project. Firstly, the usage of INLA is controversial. We have been introduced that INLA may not be the best tool for posterior simulation when we have a large data set. Also, there is complicate maths behind those methods which we did not discuss in details at this stage. When building the regression model, we only consider two predictors, income and household size, which is far from enough and the results could be biased. For further investigation, we can explore more on BYM model and INLA to gain a deeper understanding. We can also add more predictors which could also correlate with housing value in the model to make it less biased.
+# Conclusion & Limitations
+
+This project introduces the spatial model BYM and the Bayesian posterior simulation tool INLA. We apply those new methods to the Twins Cities housing value data set as an example. Of course, there are limitations in this project. Firstly, the usage of INLA is controversial. We have been introduced that INLA may not be the best tool for posterior simulation when we have a large data set. Also, there is complicate maths behind those methods which we did not discuss in details at this stage. When building the regression model, we only consider two predictors, income and household size, which is far from enough and the results could be biased. 
+
+# Future Research Direction
+
+For further investigation, we can explore more on BYM model and INLA to gain a deeper understanding. Since we don't specified our prior when we applied to the Twin Cities data, we can specify our hyperprior or prior future in the future research. We can also add more predictors that correlate with housing value in the model to remove more biases.
 
 
-**Acknowledgements**
+# Acknowledgements
 
 Special thanks to Professor Alicia Johnson for the invaluable guidance throughout this project and Professor Taylor Okonek and Professor Brianna Heggeseth for the external academic support. 
 
-**Reference**:
+# Reference:
 
