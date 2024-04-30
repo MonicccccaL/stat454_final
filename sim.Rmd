@@ -30,17 +30,16 @@ To fit a model using INLA in R, we typically define the linear predictor as a fo
 library(dplyr)
 library(lubridate)
 library(stringr)
-library(ggplot2)
+
 library(sf) 
-library(spdep)
-library(GGally)
+
+
 library(tidyr)
-library(INLA)
-library(mapview)
+
 library(Matrix)
 library(leafsync)
 library(spatialreg)
-library(gridExtra)
+
 ```
 
 ## Housing Value Data in Twins Cities
@@ -50,14 +49,18 @@ We used the data from 2015-2019 American Community Service (https://www.census.g
 The plot on the left below shows the distribution of housing prices in Hennipin and Ramsey county. We observed that the distribution of the housing prices is skewed to the right. So, we applied a logarithmic transformation to housing prices to standardize their values. After standardized housing prices, we observed the housing prices distribution is normal distributed with a mean around 12.6.
 
 ```{r fig.width=12, fig.height=6}
+library(ggplot2)
+library(gridExtra)
 load('SpatialData.RData')
 mn <- ggplot(mn_data, aes(x=HouseValueE))+
   geom_density() +
   ggtitle("Housing Prices in Hennipin & Ramsey County") +
+  labs(x="House Value (USD)")+
   theme_classic()
 mn_log <- ggplot(mn_data, aes(x=log(HouseValueE)))+
   geom_density()+
   ggtitle("Logarithm of Housing Prices in Hennipin & Ramsey County") +
+  labs(x="Logarithm of House Value")+
   theme_classic()
 grid.arrange(mn, mn_log, ncol = 2)
 ```
@@ -67,6 +70,7 @@ This data set contains housing data of 464 Hennepin and Ramsey census tracts inc
 ***Figure 1** Logarithm of housing prices in Hennipin & Ramsey county, MN per census tract from the spData package*
 
 ```{r}
+library(mapview)
 mn_data$vble <- log(mn_data$HouseValueE)
 origin <- mapview(mn_data, zcol = "vble", layer.name = "log price")
 origin
@@ -77,6 +81,7 @@ We will model the logarithm of the median prices using as covariates the average
 ***Figure 2** Relationship between the outcome variable logarithm of housing price, and the average Median household income in the past 12 months and the average household size.*
 
 ```{r}
+library(GGally)
 ggpairs(data = mn_data, 
         columns = c("vble", "HouseholdSizeE", "IncomeE"), 
         columnLabels = c("log price", "Household Size", "Income"))
@@ -119,7 +124,7 @@ In the both BYM and BYM2 model, the spatial random effect $u_i$ needs to be spec
 We create a neighborhood structure using functions of the **spdep** package (Bivand 2022). First, we use the poly2nb() function to generate a spatial weights matrix (nb) based on the data (mn_data) and using queen contiguity to define neighborhood relationships between polygons. Each element of the list nb represents one area and contains the indices of its neighbors. For example, nb[[1]] contains indices of neighboring polygons in area 1.
 
 ```{r}
-# Neighborhood
+library(spdep)
 nb <- poly2nb(mn_data, queen = TRUE)
 head(nb, 3)
 ```
@@ -129,6 +134,7 @@ Figure 3 shows a map with the neighbors obtained. This plot is obtained by first
 ***Figure 3** Neighborhood Network Structure*
 
 ```{r fig.width=8, fig.height=7, message=FALSE}
+library(sf)
 plot(st_geometry(mn_data), border = "black")
 plot.nb(nb, st_geometry(mn_data), add = TRUE)
 ```
@@ -136,6 +142,7 @@ plot.nb(nb, st_geometry(mn_data), add = TRUE)
 To construct the neighborhood matrix that can be used in the INLA function, we use the `nb2INLA()` function to convert the nb list into a file called map.adj. This step will make sure that we have the representation of the neighborhood matrix as required by R-INLA. The map.adj file is saved in the working directory. Then, we read the map.adj file using the `inla.read.graph()` function of R-INLA, and store it in the object g which we later use to specify neighborhood for the spatial model when using R-INLA.
 
 ```{r}
+library(INLA)
 nb2INLA("map.adj", nb)
 g <- inla.read.graph(filename = "map.adj")
 ```
@@ -220,6 +227,7 @@ row.numbers = FALSE, feature.id = FALSE)
 m1 <- mapview(mn_data, zcol = "PM", map.types = "CartoDB.Positron",
               at = at, popup = popuptable, layer.name = "model predict")
 
+library(leafsync)
 m <- leafsync::sync(m1, origin, ncol = 2)
 m
 ```
