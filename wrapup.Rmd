@@ -19,8 +19,6 @@ Thank you for reading and having the interest on our project!
 
 # Reference:
 
-Sure, here are the references with ">" before each number:
-
 >1. Besag, J. (1974). Spatial interaction and the statistical analysis of lattice systems. Journal of the Royal Statistical Society: Series B (Methodological), 36(2), 192-225.
 >2. Besag, J., York, J., & Mollié, A. (1991). Bayesian image restoration, with two applications in spatial statistics. Annals of the Institute of Statistical Mathematics, 43, 1-20.
 >3. Gómez-Rubio, V. (2020). Bayesian inference with INLA Chapman and Hall/CRC.
