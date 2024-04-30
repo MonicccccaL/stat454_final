@@ -17,7 +17,7 @@ The spatial model we are using here is the Besag-York-Mollie (BYM) model (Besag,
 $$
 \begin{array}
 \text{Data: } & Y|\beta_0, \beta_k, \sigma \sim N(\mu_i, \sigma^2) \;\;
-\text{ where } \mu_i = \beta_0 + \sum_{k=1}^k x_{ik} \beta_k + ø_i + \epsilon_i \\
+\text{ where } \mu_i = \beta_0 + \sum_{k=1}^k x_{ik} \beta_k + u_i + \epsilon_i \\
 && \\
 \text{Priors: } & \beta_0 \sim N(m_0, s_0^2) \\
 & \beta_k \sim N(m_k, s_k^2) \\
@@ -27,24 +27,27 @@ $$
 \end{array}
 $$
 
-The model can be split into two components, fixed effect, $\beta_0 + x_{ik}\beta_k$, and random effect, $ø_i + \epsilon_i$. For the fixed effect, $\beta_0$ is the intercept, $\beta_k$ is a set of coefficients of k predictors we are interested in. The random effect includes spatial random effect $ø_i$ and non-spatial random effect $\epsilon_i$. Spatial random effect $ø_i$ accounts for the spatial dependence between outcomes indicating the value of a region is correlated with the value of its neighbors. And the non-spatial random effect $\epsilon_i$ models the uncorrelated noise. In the BYM model, the spatial random effect $ø_i$ is modeled by the intrinsic conditional autoregressive (ICAR) model. $N_i$ is the set of neighbors of region $i$, $n$ is the number of neighbors in this set $N_i$, and $j$ is the neighbor region with $j \in N_i$. We will discuss the CAR and ICAR model in detail in the following subsection.
+The model can be split into two components, fixed effect, $\beta_0 + x_{ik}\beta_k$, and random effect, $u_i + \epsilon_i$. For the fixed effect, $\beta_0$ is the intercept, $\beta_k$ is a set of coefficients of k predictors we are interested in. The random effect includes spatial random effect $u_i$ and non-spatial random effect $\epsilon_i$. Spatial random effect $u_i$ accounts for the spatial dependence between outcomes indicating the value of a region is correlated with the value of its neighbors. And the non-spatial random effect $\epsilon_i$ models the uncorrelated noise. In the BYM model, the spatial random effect $u_i$ is modeled by the intrinsic conditional autoregressive (ICAR) model. $N_i$ is the set of neighbors of region $i$, $n$ is the number of neighbors in this set $N_i$, and $j$ is the neighbor region with $j \in N_i$. We will discuss the CAR and ICAR model in detail in the following subsection.
 
 ### (Intrinsic) Conditional Autoregressive Model
 
 The Conditional Autoregressive (CAR) model is one of the most widespread approaches for spatial modeling. It was first introduced by Besag (1974) and remains one of the most primary methods for areal data modeling. Generally, the CAR model relies on the binary neighborhood structure $W$, which we discussed earlier. The entries $w_{ij}$ is 1 if region $i$ and region $j$ are neighbors and 0 otherwise. The region is not considered to be the neighbor of itself, so $w_{ii}$, the entries on the diagonal, is 0.
 
-In the BYM model, the spatial interaction between pairs of region $i$ and region $j$ is modeled conditionally as a set of spatial random effects $ø = (ø_1, ø_2, …, ø_N)$, $N$ represents the number of regions we are looking at. The distribution of ø_i is determined by the sum of weighted values of its neighbors $w_{ij}ø_j$. The model is specified as $$u_i | u_j, j ≠ i \sim N(\sum_{j \in N_i} w_{ij}u_j, \sigma_i^2)$$ In the model, $j$ is the neighbor region in the neighborhood set of region $i$, $N_i$. $n$ is the count of neighbors in the set $N_i$, and $\sigma_i$ is the unknown variance of random effect $u_i$.
+In the BYM model, the spatial interaction between pairs of region $i$ and region $j$ is modeled conditionally as a set of spatial random effects $u = (u_1, u_2, …, u_N)$, $N$ represents the number of regions we are looking at. The distribution of u_i is determined by the sum of weighted values of its neighbors $w_{ij}u_j$. The model is specified as 
 
-Besag (1974) proved that the joint distribution of $u$ is a multivariate normal centered at 0. The variance of $ø$ is specified as a precision matrix $Q$ which is the inverse of a covariance matrix. With that,
+$$u_i | u_j, j ≠ i \sim N(\sum_{j \in N_i} \frac{w_{ij}u_j}{n}, \sigma_i^2)$$ 
+In the model, $j$ is the neighbor region in the neighborhood set of region $i$, $N_i$. $n$ is the count of neighbors in the set $N_i$, and $\sigma_i$ is the unknown variance of random effect $u_i$.
+
+Besag (1974) proved that the joint distribution of $u$ is a multivariate normal centered at 0. The variance of $u$ is specified as a precision matrix $Q$ which is the inverse of a covariance matrix. With that,
 $$u \sim N(0, Q^{-1})$$ 
-For the multivariate normal random variable $ø$, the precision matrix $Q$ is constructed from two matrices: diagonal matrix $D$ and adjacency matrix, which is the neighborhood matrix we defined above $W$. For CAR model, $Q$ is defined as 
+For the multivariate normal random variable $u$, the precision matrix $Q$ of CAR model is constructed from two matrices: diagonal matrix $D$ and adjacency matrix, which is the neighborhood matrix we defined above $W$. For CAR model, $Q$ is defined as 
 $$Q = D(I - \alpha W)$$ 
-where $I$ is the identity matrix, and $\alpha$ is a parameter in CAR model controlling the amount of spatial dependence and $0 < \alpha < 1$. $\alpha = 0$ means spatial independence, $\alpha = 1$ otherwise. For Intrinsic Conditional Autoregressive (ICAR) model, we set $\alpha$ is 1 and the above equation can be simplified as
+where $I$ is the identity matrix, and $\alpha$ is a parameter in CAR model controlling the amount of spatial dependence and $0 < \alpha < 1$. $\alpha = 0$ means spatial independence, $\alpha = 1$ otherwise. For Intrinsic Conditional Autoregressive (ICAR) model, we set $\alpha$ is 1 and the precision matrix of ICAR model can be simplified as
 $$Q = D - W$$
 
 In the ICAR model, $u_i$ is normally distributed with the mean equal to the average of neighbor values. That is saying the spatial effect of region $i$ is determined by the mean of its neighbors' spatial effect. The conditional specification of ICAR model is 
 $$u_i | u_j, i ≠ j \sim N(\frac{\sum_{j\in N_i}u_j}{n}, \frac{\sigma_i^2}{n})$$ 
-$\sigma_i^2 /n$ implies that the variance of spatial effect decreases as the number of neighbors increases. In other words, if the region has more neighbors, we are more confident in estimating its spatial effect.
+$\frac{\sigma_i^2}{n}$ implies that the variance of spatial effect decreases as the number of neighbors increases. In other words, if the region has more neighbors, we are more confident in estimating its spatial effect.
 
 
 # BYM2 Model
