@@ -11,10 +11,26 @@ This project introduces the spatial model BYM and the Bayesian posterior simulat
 
 For further investigation, we can explore more on BYM model and INLA to gain a deeper understanding. Since we don't specified our prior when we applied to the Twin Cities data, we can specify our hyperprior or prior future in the future research. We can also add more predictors that correlate with housing value in the model to remove more biases.
 
-
 # Acknowledgements
 
 Special thanks to Professor Alicia Johnson for the invaluable guidance throughout this project and Professor Taylor Okonek and Professor Brianna Heggeseth for the external academic support. 
 
+Thank you for reading and having the interest on our project!
+
 # Reference:
 
+Sure, here are the references with ">" before each number:
+
+>1. Besag, J. (1974). Spatial interaction and the statistical analysis of lattice systems. Journal of the Royal Statistical Society: Series B (Methodological), 36(2), 192-225.
+>2. Besag, J., York, J., & Mollié, A. (1991). Bayesian image restoration, with two applications in spatial statistics. Annals of the Institute of Statistical Mathematics, 43, 1-20.
+>3. Gómez-Rubio, V. (2020). Bayesian inference with INLA Chapman and Hall/CRC.
+>4. Joyce, J. (2003). Bayes’ theorem.
+>5. Krainski, E., Gómez-Rubio, V., Bakka, H., Lenzi, A., Castro-Camilo, D., Simpson, D., et al. (2018). Advanced spatial modeling with stochastic partial differential equations using R and INLA Chapman and Hall/CRC.
+>6. Levitin, D. J. (2016). A field guide to lies: Critical thinking in the information age Penguin.
+>7. Moraga, P. (2019). Geospatial health data: Modeling and visualization with R-INLA and shiny Chapman and Hall/CRC.
+>8. Moraga, P. (2023). Spatial statistics for data science: Theory and practice with R CRC Press.
+>9. Morris, M., Wheeler-Martin, K., Simpson, D., Mooney, S. J., Gelman, A., & DiMaggio, C. (2019). Bayesian hierarchical spatial models: Implementing the besag york mollié model in stan. Spatial and Spatio-Temporal Epidemiology, 31, 100301.
+>10. Riebler, A., Sørbye, S. H., Simpson, D., & Rue, H. (2016). An intuitive bayesian spatial model for disease mapping that accounts for scaling. Statistical Methods in Medical Research, 25(4), 1145-1165.
+>11. Rue, H., Martino, S., & Chopin, N. (2009a). Approximate bayesian inference for latent gaussian models by using integrated nested laplace approximations. Journal of the Royal Statistical Society Series B: Statistical Methodology, 71(2), 319-392.
+>12. Rue, H., Martino, S., & Chopin, N. (2009b). Approximate bayesian inference for latent gaussian models by using integrated nested laplace approximations. Journal of the Royal Statistical Society Series B: Statistical Methodology, 71(2), 319-392.
+>13. Wang, X., Yue, Y. R., & Faraway, J. J. (2018). Bayesian regression modeling with INLA Chapman and Hall/CRC.

@@ -2226,7 +2226,8 @@ x|θ \sim N(μ(θ),Q(θ)^{−1}),\\
 <li><p><span class="math inline">\(y\)</span>: the observed data, which assumed to follow the exponential
 family distribution</p></li>
 <li><p><span class="math inline">\(x\)</span>: represents the latent Gaussian field, which the distribution is
-assumed to be Gaussian Markov random field (GMRF)</p></li>
+assumed to be Gaussian Markov random field (GMRF). This <span class="math inline">\(x\)</span> is
+different than the <span class="math inline">\(x\)</span> we used in the spatial model notations.</p></li>
 <li><p><span class="math inline">\(\theta\)</span>: hyperparameters, which always govern the distribution of
 other parameters in the model</p></li>
 <li><p><span class="math inline">\(\mu(\theta)\)</span>: the mean of the latent Gaussian field <span class="math inline">\(x\)</span></p></li>
@@ -2259,13 +2260,13 @@ hyperparameters, <span class="math inline">\(\theta\)</span>, it is assumed that
 independent of each other. This implies that the <strong>likelihood function</strong>
 can be expressed as:</p>
 <p><span class="math display">\[
-f(y|x,\theta)=\prod_{i \in \mathcal {I}} f(y_i|\eta_i, \theta)
+f(y|x,\theta)=\prod_{i \in I} f(y_i|\eta_i, \theta)
 \]</span></p>
 <p>where,</p>
 <ul>
-<li><span class="math inline">\(\mathcal{I}\)</span>: contains the indices for all observed values of <span class="math inline">\(y\)</span>.
-In other words, the indices of the observations for which we have
-actual data.</li>
+<li><span class="math inline">\(I\)</span>: contains the indices for all observed values of <span class="math inline">\(y\)</span>. In other
+words, the indices of the observations for which we have actual
+data.</li>
 </ul>
 <p>INLA uses a combination of analytically approximations and numerical
 integration to obtain approximated posterior distributions of the
@@ -2279,15 +2280,15 @@ Laplace approximation for multidimensional integration.</p>
 <p>The joint posterior distribution of the effects and hyperparameters can
 be expressed as:</p>
 <p><span class="math display">\[
-f(x,\theta|y)\propto f(θ)f(x|\theta) \prod_{i \in \mathcal {I}} f(y_i|x_i, \theta)\\
-\propto f(\theta)|Q(\theta)|^{\frac{1}{2}} exp \{ −\frac{1}{2}x^\top Q(\theta)x + \sum_{i \in \mathcal{I}}log(f(y_i|x_i,\theta)) \}.
+f(x,\theta|y)\propto f(θ)f(x|\theta) \prod_{i \in I} f(y_i|x_i, \theta)\\
+\propto f(\theta)|Q(\theta)|^{\frac{1}{2}} exp \{ −\frac{1}{2}x^\top Q(\theta)x + \sum_{i \in I}log(f(y_i|x_i,\theta)) \}.
 \]</span></p>
 <p>where,</p>
 <ul>
-<li><span class="math inline">\(x_i = \eta_i\)</span> when <span class="math inline">\(i \in \mathcal{I}\)</span>, since mentioned above
-<span class="math inline">\(\eta_i\)</span> is part of vector <span class="math inline">\(x\)</span>. This implies that for observations
-in the set of observed values, the latent effects <span class="math inline">\(x_i\)</span>​ are directly
-equal to the corresponding latent linear predictors <span class="math inline">\(\eta_i\)</span></li>
+<li><span class="math inline">\(x_i = \eta_i\)</span> when <span class="math inline">\(i \in I\)</span>, since mentioned above <span class="math inline">\(\eta_i\)</span> is
+part of vector <span class="math inline">\(x\)</span>. This implies that for observations in the set of
+observed values, the latent effects <span class="math inline">\(x_i\)</span>​ are directly equal to the
+corresponding latent linear predictors <span class="math inline">\(\eta_i\)</span></li>
 </ul>
 <p>Now we can calculate the <strong>marginal distributions</strong> (MAIN GOAL!!) for
 the latent Gaussian variables, <span class="math inline">\(x\)</span>, and hyperparameter, <span class="math inline">\(\theta\)</span>. It can
