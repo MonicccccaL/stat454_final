@@ -127,7 +127,7 @@ legitimately. With all those, the BYM2 model is specified as
 $$
 \begin{array}
 \text{} & Y_i \sim N(\mu_i,\sigma^2)\;\;
-\text{, where } \mu_i=\beta_0+\sum_{k=1}^k \beta_k x_{ik} + (\sqrt{\frac{\rho}{s}}u_i+\sqrt{1-\rho_i}\epsilon_i)\sigma_c\\
+\text{, where } \mu_i=\beta_0+\sum_{k=1}^k \beta_k x_{ik} + (\sqrt{\frac{\rho}{s}}u_i+\sqrt{1-\rho} \epsilon_i)\sigma_c\\
 &&\\
 \text{Priors: } & \beta_0 \sim N(m_0, s_0^2) \\
 & \beta_k \sim N(m_k, s_k^2) \\
