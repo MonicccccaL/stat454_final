@@ -2096,7 +2096,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </script>
 
   <!--/radix_placeholder_distill-->
-  <script src="site_libs/header-attrs-2.26/header-attrs.js"></script>
+  <script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
   <script src="site_libs/popper-2.6.0/popper.min.js"></script>
   <link href="site_libs/tippy-6.2.7/tippy.css" rel="stylesheet" />
   <link href="site_libs/tippy-6.2.7/tippy-light-border.css" rel="stylesheet" />
@@ -2179,7 +2179,7 @@ specified as</p>
 \text{Priors: } &amp; \beta_0 \sim N(m_0, s_0^2) \\
 &amp; \beta_k \sim N(m_k, s_k^2) \\
 &amp; \sigma \sim exp(l)\\
-&amp; u_i \sim u_i | u_j, j ≠ i \sim N(\sum_{j \in N_i} w_{ij}u_j, \sigma_i^2)\\
+&amp; u_i | u_j, j ≠ i \sim N(\sum_{j \in N_i} w_{ij}u_j, \sigma_i^2)\\
 &amp; \epsilon \sim N(0, \sigma_\epsilon^2)
 \end{array}
 \]</span></p>
@@ -2263,7 +2263,7 @@ legitimately. With all those, the BYM2 model is specified as</p>
 \text{Priors: } &amp; \beta_0 \sim N(m_0, s_0^2) \\
 &amp; \beta_k \sim N(m_k, s_k^2) \\
 &amp; \sigma \sim exp(l)\\
-&amp; u_i \sim u_i | u_j, i ≠ j \sim N(\frac{\sum_{j\in N_i}u_j}{n}, \frac{\sigma_i^2}{n})\\
+&amp; u_i | u_j, i ≠ j \sim N(\frac{\sum_{j\in N_i}u_j}{n}, \frac{\sigma_i^2}{n})\\
 &amp; ε_i \sim N(0, n_s) \\
 &amp; \rho \sim Beta(0.5,0.5)\\
 &amp; \sigma_c \sim N(0,1)

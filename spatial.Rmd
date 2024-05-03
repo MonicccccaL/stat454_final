@@ -38,7 +38,7 @@ $$
 \text{Priors: } & \beta_0 \sim N(m_0, s_0^2) \\
 & \beta_k \sim N(m_k, s_k^2) \\
 & \sigma \sim exp(l)\\
-& u_i \sim u_i | u_j, j ≠ i \sim N(\sum_{j \in N_i} w_{ij}u_j, \sigma_i^2)\\
+& u_i | u_j, j ≠ i \sim N(\sum_{j \in N_i} w_{ij}u_j, \sigma_i^2)\\
 & \epsilon \sim N(0, \sigma_\epsilon^2)
 \end{array}
 $$
@@ -132,7 +132,7 @@ $$
 \text{Priors: } & \beta_0 \sim N(m_0, s_0^2) \\
 & \beta_k \sim N(m_k, s_k^2) \\
 & \sigma \sim exp(l)\\
-& u_i \sim u_i | u_j, i ≠ j \sim N(\frac{\sum_{j\in N_i}u_j}{n}, \frac{\sigma_i^2}{n})\\
+& u_i | u_j, i ≠ j \sim N(\frac{\sum_{j\in N_i}u_j}{n}, \frac{\sigma_i^2}{n})\\
 & ε_i \sim N(0, n_s) \\
 & \rho \sim Beta(0.5,0.5)\\
 & \sigma_c \sim N(0,1)
