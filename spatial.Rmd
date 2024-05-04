@@ -72,7 +72,7 @@ diagonal, is 0.
 In the BYM model, the spatial interaction between pairs of region $i$
 and region $j$ is modeled conditionally as a set of spatial random
 effects $u = (u_1, u_2, …, u_N)$, $N$ represents the number of regions
-we are looking at. The distribution of u_i is determined by the sum of
+we are looking at. The distribution of $u_i$ is determined by the sum of
 weighted values of its neighbors $w_{ij}u_j$. The model is specified as
 
 $$u_i | u_j, j ≠ i \sim N(\sum_{j \in N_i} \frac{w_{ij}u_j}{n}, \sigma_i^2)$$
